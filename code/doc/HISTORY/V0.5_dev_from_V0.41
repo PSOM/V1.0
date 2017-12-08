@@ -1,0 +1,332 @@
+*******************
+* Description of the work needed to get V0.5 from V0.41.
+* JBG. 02/02/2013 -- 03/06/2013.
+
+37 routines modified:
+
+model/src/advect_quick.f90
+model/src/calcn2.f90
+model/src/checks.f90
+model/src/conadjust_sT.f90
+model/src/correctbc.f90
+model/src/diffusion_wind.f90
+model/src/energy.f90
+model/src/findsigma.f90
+model/src/findz_topmoves.f90
+model/src/geostroph.f90
+model/src/header.f90
+model/src/init_tr.f90
+model/src/inith_thermalwind.f90
+model/src/main.f90
+model/src/mod_io.f90
+model/src/momentum.f90
+model/src/n2budget_topbot.f90
+model/src/outcdf.f90
+model/src/particles.f90
+model/src/potdens.f90
+model/src/pvcalc.f90
+model/src/ran3.f90
+model/src/rpflattopog_Sche.f90
+model/src/setbc.f90
+model/src/seval.f90
+model/src/staticsigma.f90
+model/src/stprofile_X.f90
+model/src/streamfunction.f90
+model/src/topog.f90
+model/src/tracersource_nut.f90
+model/src/windstress.f90
+model/src/write_op.f90
+model/src/writecdf.f90
+model/src/writegeopotential.f90
+model/src/writeksurf.f90
+model/src/writexslice.f90
+
+AND 
+
+26 routines renamed.
+
+=> 46 routines have been modified or renamed.
+
+
+*********************************************************
+* ACTION 1: Run a testcase with topography (Sche_106B).
+
+
+*1: Some declarations have been modified (ran3, writeksurf, pvcalc, streamfunction, n2budget_topbot, writexslice, header, main).
+
+*2: Added the declaration of pvsurf in writeksurf, Modified mod_io so that gfortran can compile.
+
+*3: Plug in a simulation with topography (Sche_106B):
+      - copied V0.4/code/Sche_106B in V0.5_2nd_trial/code/
+      - added the list of new objects in optfile
+      - changed gfortran option to enable the use of long lines
+      - changed the namelist
+
+*4: Checks using ifort, gfortran and pgf95 options.
+
+step1: gfortran -fbounds-check -ftrapv
+  -fbounds-check revealed several issues of "outside the bounds" access.
+  -ftrapv : no error produced. It generates traps for signed overflow on addition, subtraction, multiplication operations. 
+
+step2: ifort  -fpp -real-size 64 -stand f03 -u -check all -ftrapuv -nozero 
+  It showed undefined variables, like this one: forrtl: severe (193): Run-Time Check Failure. The variable '_vort_$UDZ' is being used without being defined.
+
+step3: ifort -O0 -g -traceback -check all -fp-stack-check -u
+  fp-stack-check: It checks that the floating-point stack is in the expected state (if it overflows, a NaN value is put in the FP calculation and results are different). Typically this is when a real function is called as if it were a subroutine, OR a subroutine is called as if it were a function (return values left of FP stack OR too much data is taken off the FP stack)
+  It went fine.
+
+  The option " fpe:0 " checks Floating-point invalid, divide-by-zero, and overflow exceptions. An error 140 is found. It does not look that bad.
+
+step4: ifort -gen-interfaces -warn interfaces
+  Checks the list of arguments for subroutines and functions:
+  The option "- warn all" enables all warnings (including warn interfaces).
+
+additionally, " gfortran -Wall " detected about 700 unused variables.
+
+step5: tested compilation and running with pgf95.
+  Had to modify the declaration of functions (potdens, erf, ran3). 
+  tracersource had an outofbound issue with trinit.
+
+All these debugging tests lead to a reduction of the number of mistakes in the code. I still had to solve a segmentation fault (wrong number of arguments in a subroutine call) that was not trapped by all these tests.
+
+  ***********
+  * Ran a simulation with 
+  *  ifort -fpp -real-size 64 -stand f03 -O3 -u
+  *  gfortran -x f95-cpp-input -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none
+  *  pgf95 -Mpreprocess -Mr8 -Mdclchk -tp core2-64
+  * 
+  * -> The three runs give almost identical results up to 360 time steps (differences below 1e-13).
+  * -> Strong differences in terms of performance.
+  ***********
+
+
+**********************************************************
+* ACTION 2: Isolate what is specific to Sche_106B into an example case. Try to reproduce the wiggle case.
+
+step6: Some declarations had to be reorganized (like lv_flat_bottom).
+
+step7: Tried to run the "wiggle" case.
+      Had to modify again momentum to match the arguments of conadjust.
+      Modified init_tr latrad initialization to match V0.41 wiggle case.
+
+  ***********
+  * Ran a simulation with 
+  *  ifort -fpp -real-size 64 -stand f03 -O3 -u
+  *  gfortran -x f95-cpp-input -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none
+  *  pgf95 -Mpreprocess -Mr8 -Mdclchk -tp core2-64
+  * 
+  * -> These three tests give almost identical results up to 10 time steps.
+  ***********
+
+  ***********
+  * Tried Shcheptkin scheme on this flat bottom example. The velocities found a slightly weaker (differences are around 0.1%).
+  ***********
+
+
+**********************************************************
+* ACTION 3: Added a nice initial output that provides key variables (in checks).
+
+  To do that, I needed to move some declarations:
+   verbose, bottom_linear_drag, RR, nsteps 
+
+
+**********************************************************
+* ACTION 4: Checked the flux limiter.
+  Made simple experiments enabling and disabling (currently, the standard choice) the flux limiter in the x-direction.
+  It shows that the flux limiter is efficient to avoid the overshoots.
+  Nevertheless, enabling it with the periodic conditions required to modify advect_quick:
+    - defined a new index i2, equal to i except when i=NI AND the current comes from the right.
+    - added the lines X(0,j,k,m)= X(NI,j,k,m) for X=Tr,u,v,w,s,T, that were needed.
+
+  The new advect_quick gives satisfying results. Slight differences in u,v in the wiggle case. Massive change in Tr (overshoots to -0.18 are avoided).
+  No negative values for Tr initialized between 0 and 1 are found over 3500 time steps on the wiggle case.
+
+
+**********************************************************
+* ACTION 5: Improved the "structure".
+ (in V0.5_work_on_tools)
+ The scripts tools/compile.sh and tools/genmakefilel have been deeply modified to improve the safety and user-friendliness of the structure that allows the superceding trick.
+   - It is totally safe now to interrupt a compilation.
+   - It is fully supported now to work on several experiments at the same time.
+   - The compilation script provides much more information in the output (and it is easier to read).
+   - The list of objects can now be specific to an experiment (which was a major flaw of the previous version).
+   
+
+**********************************************************
+* ACTION 6: Added the NA simulation as another test case.
+ 
+   Had to move some declarations.
+   Found several issues:
+    - in stprofile, the part that is supposed to create the wiggles reaches an out-of-bound value for xc (i is equal to NI+2): i is used but outside a do loop...
+    - in advect_quick, call to restore_bndry did not have the right number of arguments
+     ( NA_test/src/advect_quick.f90: call restore_bndry(n,dtime)
+       NA_test/src/restore_bndry.f90:      subroutine restore_bndry(n) )
+    - in ini_tracer, step is used but never defined.
+    - conadjust(step,n)
+    
+
+**********************************************************
+* ACTION 7: Modified outcdf.
+   * Now, outcdf writes both cell center (in full_*.cdf files) and faces values (in face_*.cdf files). 
+   * the output of pv was not OK on the ghost cells. Had to modify n2budget. Fixed. 
+
+
+**********************************************************
+* ACTION 8: Some improvements about the particles output:
+   * They are now in the output directory.
+   * A new variable is initialized in namelist, parti_outfreq that determines the frequency at which the particles are saved. 
+
+
+**********************************************************
+* ACTION 9: Made the bottom friction option much clearer.
+    There are now 3 parameters to play with:
+      - RR in namelist                     
+         Gives the amplitude of the bottom friction
+      - fixed_bottom_thickness in inc/cppdefs.h   (used in findz and staticsigma).
+         If TRUE, the lowermost cell has a thickness equal to dzbot, else, it is computed from the stretched grid.
+      - lv_flat_bottom in namelist                    
+         IF TRUE, the bottom is flat, else, topog is called.
+    Additionally,
+      - dzbot.
+
+     The subroutine checks stops the computation if [  ABS(RR>1e-13) AND .NOT.(fixed_bottom_thickness) .AND. .NOT.(lv_flat_bottom) ] .
+
+**********************************************************
+* ACTION 10: The variable "particle" was both a preprocessor variable and a type in module particle!
+    -> led to compiling error.
+    The cppdefs variable "particle" became "allow_particle". 
+
+
+**********************************************************
+* ACTION 11: Improving namelist
+
+  - time step was nondim, it is now in second.
+  - dztop and dzbot were nondim, they are now dimensional (in m).
+  - namelist is now commented.
+
+
+**********************************************************
+* ACTION 12: Worked on the pickup option (in wiggle_FL).
+
+  - A write-read on the same iteration is perfectly identical.
+  - Made tests to find the right set of variables to pass from one iteration to another. Close but still not there.
+
+**********************************************************
+* ACTION 13: Worked on advect_quick (in test_advect).
+  - Reorganized advect_quick, diffusion_wind and viscous.
+  - Made some tests: test_advect_20130131 and default model.
+
+      25 iterations:
+                     nh       , incl.   advecn        viscous      diffusion          
+      test_advect    90600.0ms          9584.0ms      2053.0ms     2188.0ms           
+      default        97048.0ms          14332.0ms     2782.0ms     2384.0ms            
+                     (93.4%)            (66.9%)       (73.8%)      (91.8%)
+
+     More details in code/doc/benchmark_20120131
+
+**********************************************************
+* ACTION 13b: Added an along-isopycnal diffusion (Redi scheme).
+
+  More details later.
+ 
+
+**********************************************************
+* ACTION 14: momentum in a loop, cleared init_tr (future ini_setup).
+
+
+**********************************************************
+* ACTION 15: benchmarked Sche vs Song.
+
+- rpevalgrad_Sche is 2.93% of a 10-iteration simulation.
+- rpevalgrad_Song is 0.97% of a 10-iteration simulation.
+- rpevalgrad_Sche is 301% of rpevalgrad_Song. 
+
+
+**********************************************************
+* ACTION 16: moved unused files from model/src to model/src_unused_source_files/
+
+#writecdf.f90#			eddydivergence.f90		mgpfill_Jinbo.f90		tracerinit_dots.f90		write_op.f90
+ana_uvw.f90			energy.f90_V0.41		mgrid_pre.f90			tracerinit_isopyc4depths.f90	writecdf.f90~
+analytic_eval.f90		extremes_tr.f90			mod_nc.f90_DOUBT		tracerinit_nut.f90		writeksurf.f90~
+biharmonic.f90			geostroph.f90_mod		msg_error.f90			tracerrelease_dots.f90		writen2budget.f90
+calc_dvdy.f90			geostroph_Jinbo.f90		outpv.f90			tracerrelease_isopyc4depths.f90	writeslice.f90
+check.py			grids.f90			pfilter.f90			tracersource_isopyc.f90		writeslicenut.f90
+chfine.f90_mod			grids.mod			prepvisc.f90			tracmass_interface.f90
+compute_size_param		header.f90~			stprofile_X.f90_V0.41		tracmass_modules.f90
+convert.f90			ini_rho.f90			surfaceflux.f90			traj_forward.f90
+density.f90			main.f90~			time_subs.f90			windstress.f90
+
+**********************************************************
+* ACTION 17: renamed 26 files and subroutines:
+
+
+advect_quick (advecn)  ->              advection_and_mixing
+calcn2                 ->              diag_n2
+diffusion              ->              mixing_vertical
+energy                 ->              diag_energy
+geostroph              ->              ini_uv
+init_tr                ->              ini_setup
+inith_thermalwind      ->              ini_uv
+mod_io                 ->              write_bin_mod
+n2budget_topbot        ->              diag_n2budget
+outcdf                 ->              write_cdf_3D
+pvcalc                 ->              diag_pv
+rpflattopog            ->              rpevalgrad_Song
+rpflattopog_Sche       ->              rpevalgrad_Sche
+stprofile_X            ->              ini_st
+streamfunction         ->              diag_streamfunction
+topog                  ->              ini_topog
+viscous                ->              mixing_horizontal
+writebin               ->              write_bin                          
+writecdf               ->              write_cdf             
+writegeopotential      ->              write_cdf_2D_geopotential             
+writeisopycnal         ->              write_cdf_2D_isopycnal   
+writeksurf             ->              write_cdf_2D_sigma            
+writemooring           ->              write_cdf_1D_mooring               
+writestrain            ->              write_cdf_3D_strain             
+writexslice            ->              write_cdf_2D_x                   
+writeyslice            ->              write_cdf_2D_y                   
+
+
+**********************************************************
+* ACTION 18: GET_STARTED_? and some tools/*.sh have been modified and commented.
+
+
+**********************************************************
+* ACTION 19: pickup options
+
+I cleared the options, made sure the output were OK. 
+The difference between a "one shot" (say from step 0 to 10) and a "two shot" simulation (say from 1 to 5, then pickup at 5 to 10) is small, albeit significantly non-zero. The magnitude of the difference depends on the pickup time step. Still to be enhanced.
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+ifort:
+
+-openmp-stubs
+         enables the user to compile OpenMP programs in sequential
+mode.  The openmp directives are ignored and a stub OpenMP
+library is linked (sequential)
+
+
+-parallel
+
+	enable the auto-parallelizer to generate multi-threaded code
+for loops that can be safely executed in parallel
+
+

@@ -1,0 +1,71 @@
+
+V0.41 - 2013/01/11. JBG.
+
+- mod_io.f90 has been modified to compile with gfortran.
+
+- The structure has been created in that way: code/{exe,mkfile,{model,model_build}/{src,inc}} .
+- genmakefilel and compile_complex.sh have been written and tested in several configurations, but needs some additional tests.
+- 20120227: psom (versionfrom JBW) has been fitted into the abovementioned structure.
+- 20120302: the code has been modified to meet the fortran 2003 standard:
+               * Most importantly, the declaration has been changed into the new standard. REAL*8 becomes REAL(kind=...), the old 'CHARACTER*' type is removed.
+               * ENDDOs have been added to get rid of multiple ENNDDOs.
+               * Some variables were not declared the right way.
+               * dtime is now used in a much clearer way: dtime when global, dtimel when local.
+               * NAMELIST has been moved to meet the standard
+    -> With -real size 64: No difference at all.
+    -> Without -real size 64, the results are identical at 1e-7.
+    The -real size 64 is not necessary anymore to get realistic features.
+    
+- 20120305: dabs, dsqrt, dexp (old versions of abs, sqrt, exp for kind=2 (!)) have been removed from the code.
+    No impact on the output.
+
+- 20120323 and 28: Improved portability for netcdf subroutines.
+ Should work with netcdf4.
+
+- 201203028: Made the particles calculation optional. 
+
+- 20120402: Enabled to choose pgf95.
+
+- 20120417: Several small modifications:
+               * cleaned the declarations
+               * main has been slightly reorganized
+	       * enabled to use the model without netcdf (see below)
+               * enabled to choose the output format: netcdf or binary. First step toward a much better way to get output...
+               * slight changes in tools/compile_complex.sh
+
+- 20120504:
+	* Improved the installation process. tools/configure.sh makes the start easier.
+        * outpv and outcdf are back in the model.
+
+-20120515:
+        * Enabled to use the code with rho instead of s,T.
+        * modified the namelist (got rid of Kx_* and Ky_*, introduced Kx and Ky, introduced fplane variable)
+        * write_op include is now a subroutine.
+
+
+-20120607:
+        * Enabled the model to run in rhoonly.
+	* namelist has been cleared and initializes values for diffusion, and enables to choose between f-plane and fully variable f.
+        * header has been cleared.
+        * n2budget has been removed.
+        * calls to 1D, 2D, 3D netcdf output has been made.
+        * multiple experiences can be lead with compile_complex.sh.
+        * tools/test_energy.sh enables a simple check of the consistency of your executable with our standard simulation.
+
+
+- a lot to do:
+   - work on the boundary conditions.
+   - improve the calculation of rp with topogaphy.
+   - improve the portability.
+   - add comments.
+   - improve the user-friendliness.
+
+Additional interesting readings:
+  * GET_STARTED_* : being able to start quickly and also make some basic modifications.
+  * src/README : all about the modifications of psom itself.
+  * the scripts in tools are commented (or will soon be).
+  * optfile is also roughly commented.
+
+***********************************************************************************
+
+

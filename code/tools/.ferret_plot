@@ -1,0 +1,3 @@
+
+SET REGION/i=20:90/j=60:130/l=35
+set dat "../output_XSche106B_advect_redi_9/gslice_090.cdf"; fill VOR; contour/LEVELS=(0.01)(0.2,1.,0.2)/over TR; contour/LEVELS=(-inf)(1022.,1032.,0.2)/over RHO

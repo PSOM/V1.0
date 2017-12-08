@@ -1,0 +1,349 @@
+###########################
+# genmakefilel
+#
+# This script creates the makefile.
+#
+# V1.1, 2012/04/17. JBG.
+# V1.2, 2013/03/05. JBG.
+#
+# This script defines the dependencies of the objects and modules listed in the optfile (scanning of the file for the USE statements, use of makedepend for #include).
+# It is based on
+# ./optfile 
+# makedepend
+#
+# If you want to modify the compiling options, comment/uncomment the lines between l.70 and l.103.
+#
+###########################
+
+
+
+######################
+# Reading the optfile
+
+optfileI="./optfile.tmp_genmakefilel"
+
+cat $1 | sed "s/^[ ]*#/@/g" | grep -v "@" > $optfileI 
+
+#optfile=$1
+
+# dirc is the "../" directory
+dirc=$(cat $optfileI | grep -v "#" | grep "dirc=" | cut -d= -f2) 
+
+# fcomp is the compiler
+fcomp=$(cat $optfileI | grep -v "#" | grep "fcomp=" | cut -d= -f2)
+
+# define_netcdf tells whether the netcdf output will be used 
+dnetcdf=$(cat $optfileI | grep -v "#" | grep "define_netcdf=" | cut -d= -f2)
+
+# define_gotm tells whether GOTM will be coupled to PSOM
+dgotm=$(cat $optfileI | grep -v "#" | grep "define_gotm=" | cut -d= -f2)
+
+# define_parallel compiles PSOM with openmp flags
+dparallel=$(cat $optfileI | grep -v "#" | grep "define_parallel=" | cut -d= -f2)
+
+# define_debug compiles PSOM with debugging options
+ddebug=$(cat $optfileI | grep -v "#" | grep "define_debug=" | cut -d= -f2)
+
+optfileT="./.optfile.tmp"
+
+if [ "$dnetcdf" = "T" -a "$dgotm" = "T" ]; then
+  echo " | Custom setting. Use of netcdf and gotm."
+  cat $optfileI > $optfileT
+elif [ "$dnetcdf" = "T" -a "$dgotm" = "F" ]; then
+  echo " | Default setting. Use of netcdf and gotm disabled."
+  cat $optfileI | grep -v "gotm"  > $optfileT
+elif [ "$dnetcdf" = "F" -a "$dgotm" = "T" ]; then
+  echo " | Custom setting. Use of gotm and netcdf disabled."
+  cat $optfileI | grep -v "netcdf" > $optfileT
+else
+  echo " | Custom setting. netcdf has been disabled."
+  cat $optfileI | grep -v "netcdf" | grep -v "gotm" > $optfileT
+fi
+
+
+# obj and mod list are the lists of objects and modules, without any mention to dependencies (will be handled later).
+# objlist contains all objects (other than modules) that contains subroutines or functions necessary to compile.
+objlist=$(cat $optfileT | grep -v "#" | grep "^lobj" | cut -d= -f2)
+# modlist contains all modules, that contains declarations, subroutines or functions.
+modlist=$(cat $optfileT | grep -v "#" | grep "lmod=" | cut -d= -f2)
+
+# netcdf libraries handling
+dir_netcdf_lib=$(cat $optfileT | grep -v "#" | grep "netcdf_dir_lib=" | cut -d= -f2)
+dir_netcdf_inc=$(cat $optfileT | grep -v "#" | grep "netcdf_dir_inc=" | cut -d= -f2)
+lnk_flag_netcdf=$(cat $optfileT | grep -v "#" | grep "netcdf_lnk_flag=" | cut -d= -f2)
+
+dir_gotm_lib=$(cat $optfileT | grep -v "#" | grep "gotm_dir_lib=" | cut -d= -f2)
+dir_gotm_inc=$(cat $optfileT | grep -v "#" | grep "gotm_dir_inc=" | cut -d= -f2)
+
+######################
+# Name of the file that will be created
+out=$dirc"/code/mkfile/Makefile"
+
+
+######################
+# Compiler and options
+# Only 3 options are currently available: ifort, gfortran or pgf95.
+ 
+#--------------- IFORT -------------------------------
+
+if [ "$fcomp" = "ifort" ]; then
+
+  if [ "$dparallel" = "T" ]; then
+    # OpenMP flags
+    fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+    fflags_e=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+  elif [ "$ddebug" = "T" ]; then
+    #debug mode:
+    fflags_o=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
+    fflags_e=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
+  else
+    #fflags_o=" -fpp -real-size 64 -O3 -u"
+    #fflags_e=" -fpp -real-size 64 -O3 -u"
+
+    fflags_o="-fpp -real-size 64 -Wl,-stack_size,0x40000000 -u"
+    fflags_e="-fpp -real-size 64 -Wl,-stack_size,0x40000000 -u" 
+
+    #fflags_o=" -fpp -real-size 64 -u"
+    #fflags_e=" -fpp -real-size 64 -u"
+
+    #fflags_o=" -fpp -real-size 64 -stand f03 -O3 -u"
+    #fflags_e=" -fpp -real-size 64 -stand f03 -O3 -u"
+  
+    #fflags_o=" -fpp -real-size 64 -stand f03 -u -O3 -parallel"
+    #fflags_e=" -fpp -real-size 64 -stand f03 -u -O3 -parallel"
+  fi
+
+#--------------- GFORTRAN ----------------------------
+
+ elif [ "$fcomp" = "gfortran" ]; then
+
+  
+  if [ "$ddebug" = "T" ]; then
+    #debug mode:
+    fflags_o=" -x f95-cpp-input -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none -fbounds-check -frange-check -ftrapv"
+    fflags_e="-fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none -fbounds-check -frange-check -ftrapv"
+  else
+    fflags_o=" -x f95-cpp-input -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none"
+    fflags_e="-fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none"
+
+    #fflags_o=" -x f95-cpp-input -fdefault-double-8 -fdefault-real-8"
+    #fflags_e="-fdefault-double-8 -fdefault-real-8"
+  fi
+
+#------------------ PGF95 ----------------------------
+
+ elif [ "$fcomp" = "pgf95" ]; then
+
+  fflags_o=" -Mpreprocess -Mr8 -Mdclchk -tp core2-64"
+  fflags_e=" -Mpreprocess -Mr8 -Mdclchk -tp core2-64"
+
+ else
+  echo "You have to chose between ifort, gfortran or pgf95. Sorry."
+  exit
+fi
+
+
+######################
+# Executable name
+exe="nh"
+
+
+######################
+# Directories
+
+dirh=$dirc"/code/model_build"
+dir_src=$(echo $dirh"/src")
+dir_inc=$(echo $dirh"/inc")
+
+
+#####################
+# Temporary variables
+
+filt="mkf.tmp"
+fmkd="mkd.tmp"
+
+
+#  END OF THE HEADER
+##################################################
+# START OF THE SCRIPT BY ITSELF
+
+
+##############################
+# Construction of the makefile
+
+echo " |  Writing of Makefile"
+
+
+#############
+# Part 1: Header
+
+cat >$filt <<EOF
+
+##########
+# Header
+#---------
+
+# Compiler
+FC=$fcomp
+
+# Libraries
+LIB_DIR=$dir_netcdf_lib $dir_gotm_lib
+INCLUDE=-I$dir_inc $dir_netcdf_inc $dir_gotm_inc
+LNK_FLAGS=$lnk_flag_netcdf
+
+# Exectuable name
+EXE=$exe
+
+EOF
+
+
+########################
+# Part 2: The executable
+
+#maolist is the  list of both modules and objects, both with .o extension
+maolist=$(echo $modlist $objlist | sed "s/\.mod/.o/g")
+
+cat >>$filt <<EOF
+###########
+# The executable
+#----------
+
+\$(EXE) : $maolist 
+	\$(FC) $fflags_e -o \$(EXE) $maolist \$(INCLUDE) \$(LIB_DIR) \$(LNK_FLAGS)
+
+
+EOF
+
+
+#######
+# Part 3: The modules
+
+cat >>$filt <<EOF
+###########
+# The modules
+#----------
+EOF
+
+# modlist is read from the ./optfile
+for mod in $modlist # for every module listed by the user,
+ do
+  modf=$(echo $mod | sed "s/\.mod/\.f90/g")
+  modo=$(echo $mod | sed "s/\.mod/\.o/g")
+
+  # 1. Listing the modules used by mod to create the dependencies.
+  lmodl=$(cat $dir_src/$modf | sed "s/^[ ]*//g" | sed "s/\!/@/g" | cut -d@ -f1 | sed "s/^use/@use/g;s/^USE/@use/g" | grep -i "@use " | sed "s/@use/use/g" | sed "s/use//g" | cut -d, -f1 | sed "s/ //g" | sort | uniq | sed "s/$/.mod/g") 
+  acmod=""
+  for modl in $lmodl # For every module modl used by mod
+    do  
+     lloc=$(echo $modlist | grep $modl)
+     if [ "$lloc" = "" ]; then
+        # 1st case: the module modl is not listed by the user. The compilation may break.
+        echo "  Warning: "$modf "contains the statement USE" $modl ", but $modl is not included in the list of modules."
+      else
+        # 2nd case: the module modl is listed by the user. It should be OK.
+        acmod=$(echo $acmod $modl)
+     fi  
+  done  
+  # acmod contains the list of modules that meets two conditions
+	# 1. $obj2 uses it 
+	# 2. is mentioned in the optfile. 
+
+  # 2. Listing the dependencies coming from pre-processor commands "include"
+  rm -f $fmkd;touch $fmkd;
+  makedepend -I$dir_inc $dir_src/$modf -f$fmkd
+  rm -f $fmkd".bak"
+  dep=$(cat $fmkd | grep ":" | cut -d: -f2)
+
+  # The dependencies, both from USE and #include statements, have been found. The lines enabling the compilation of the module can be written.
+
+cat >>$filt <<EOF
+
+$mod : $acmod $modo $dir_src/$modf `echo $dep | tr -s "\n" " "` 
+	\$(FC) $fflags_o -c $dir_src/$modf \$(INCLUDE) \$(LIB_DIR) \$(LNK_FLAGS) 
+
+$modo : $acmod $dir_src/$modf `echo $dep | tr -s "\n" " "`
+	\$(FC) $fflags_o -c $dir_src/$modf \$(INCLUDE) \$(LIB_DIR) \$(LNK_FLAGS)
+
+
+EOF
+done
+
+
+######################
+# Part 4: The objects (other than modules)
+
+
+cat >>$filt <<EOF
+###########
+# The objects
+#----------
+EOF
+
+# The treatment of these objects is very similar to that of  modules.
+for obj in $objlist
+ do
+  obj2=$(echo $obj | sed "s/\.o/\.f90/g")
+
+  # 1. Listing the modules used.
+  lmodl=$(cat $dir_src/$obj2 | sed "s/^[ ]*//g" | sed "s/\!/@/g" | cut -d@ -f1 | sed "s/^use/@use/g;s/^USE/@use/g" | grep -i "@use " | sed "s/@use/use/g" | sed "s/use//g" | cut -d, -f1 | sed "s/ //g" | sort | uniq | sed "s/$/.mod/g") 
+  
+  acmod=""
+  for modl in $lmodl
+    do
+     lloc=$(echo $modlist | grep $modl)
+     if [ "$lloc" = "" ]; then
+        echo "  Warning: "$obj2 "contains the statement USE" $modl ", but $modl is not included in the list of modules."
+      else
+     acmod=$(echo $acmod $modl)
+     fi
+  done  
+  # acmod contains the list of modules that 1. $obj2 uses and 2. are mentioned in the optfile. 
+
+  # 2. Listing the dependencies coming from pre-processor commands "include"
+  rm -f $fmkd;touch $fmkd;
+  makedepend -I$dir_inc $dir_src/$obj2 -f$fmkd
+  rm -f $fmkd".bak"
+  dep=$(cat $fmkd | grep ":" | cut -d: -f2)
+
+  # 3. Writing in the makefile.
+
+cat >>$filt <<EOF
+
+$obj : $acmod $dir_src/$obj2 `echo $dep | tr -s "\n" " "`
+	\$(FC) $fflags_o -c $dir_src/$obj2 \$(INCLUDE) \$(LIB_DIR) \$(LNK_FLAGS)
+
+EOF
+done
+
+
+########
+# Part 5: Ending
+
+cat >>$filt <<EOF
+
+##########
+# Ending
+#---------
+
+clean :
+	rm *.o *.mod
+
+cleanmore :
+	rm *.o *.mod \$(EXE)
+
+EOF
+
+###############################
+# The makefile file is written.
+
+echo " |  Makefile written in : " $out
+# Copy to $out
+mv $filt $out
+#cat $out
+
+# Deletion of temporary files
+rm -f $filt
+rm -f $fmkd
+#rm -f $optfileT
+rm -f $optfileI
+

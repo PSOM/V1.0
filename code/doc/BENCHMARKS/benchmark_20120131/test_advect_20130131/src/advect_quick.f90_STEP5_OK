@@ -1,0 +1,393 @@
+subroutine advecn(m,n,dtimel,step) 
+  !     ---------------------------------------------                     
+  USE header
+  !     convecn(m,n,dtime) means use level m and write s,T to level n     
+  !     computes Cx,Cy,Cz at the cell centers.                            
+  !     uflx,vflx,wflx,sflx,Tflx are the fluxes defined at                
+  !     cell faces (using QUICK).                                         
+  !                                                                       
+  integer i,i2,j,k,n,m,step
+  !     ntr is the number of tracers in variable T (Defined in header.f)  
+  REAL(kind=rc_kind) :: Eighth,Half,absvel,left,right,ctr,upos,uneg 
+  REAL(kind=rc_kind) :: dtimel,uflx(0:NI,0:NJ,0:NK),                      &
+       vflx(0:NI,0:NJ,0:NK),wflx(0:NI,0:NJ,0:NK),                   &
+       varflx(0:NI,0:NJ,0:NK),sflx(0:NI,0:NJ,0:NK),Trflx(ntr,0:NI,0:NJ,0:NK),              &
+       Tflx(0:NI,0:NJ,0:NK),uTx(0:NI+1,0:NJ+1,0:NK+1),              &
+       uvarx(0:NI+1,0:NJ+1,0:NK+1),usx(0:NI+1,0:NJ+1,0:NK+1),uTrx(ntr,0:NI+1,0:NJ+1,0:NK+1),    &
+       uux(0:NI+1,0:NJ+1,0:NK+1),uvx(0:NI+1,0:NJ+1,0:NK+1),         &
+       uwx(0:NI+1,0:NJ+1,0:NK+1),Tdif(NI,NJ,NK),                    &
+       vardif(NI,NJ,NK),sdif(NI,NJ,NK),Trdif(ntr,NI,NJ,NK),udif(NI,NJ,NK),           &
+       vdif(NI,NJ,NK),wdif(NI,NJ,NK),dtJ                            
+  REAL(kind=rc_kind) :: dTrx(ntr,0:NI+1),dvarx(0:NI+1),dsx(0:NI+1),dux(0:NI+1),        &
+       dTx(0:NI+1),dvx(0:NI+1),dwx(0:NI+1),dTry(ntr,0:NJ),          &
+       dTy(0:NJ),dvary(0:NJ),dsy(0:NJ),duy(0:NJ),dvy(0:NJ),dwy(0:NJ),           &
+       dTrz(ntr,0:NK+1),dvarz(0:NK+1),dsz(0:NK+1),dTz(0:NK+1),                    &
+       duz(0:NK+1),dvz(0:NK+1),dwz(0:NK+1)                          
+  REAL(kind=rc_kind) :: s_restore(0:NJ+1),alph_restore(0:NJ+1) 
+  REAL(kind=rc_kind) :: courinv,fc 
+                
+REAL(kind=rc_kind), dimension(    0:NI+1,0:NJ+1, 0:NK+1) :: var                            
+  parameter (Eighth=0.125d0, Half=0.5, courinv=2.d0) 
+
+  integer :: selvar
+
+  do selvar=1,5+ntr
+    if(selvar==1) var=T(:,:,:,m)
+    if(selvar==2) var=s(:,:,:,m)
+    if(selvar==3) var=u(:,:,:,m)
+    if(selvar==4) var=v(:,:,:,m)
+    if(selvar==5) var=w(:,:,:,m)
+    do it=1,ntr
+      if(selvar==5+it) var=Tr(it,:,:,:,m)
+    enddo
+
+                                                                      
+    do k=1,NK 
+      do j=1,NJ 
+        i=0
+        dvarx(i)=var(1,j,k)-var(NI,j,k)
+        do i=1,NI-1 
+          dvarx(i)= var(i+1,j,k) - var(i,j,k) 
+        end do 
+        dvarx(NI)=dvarx(0)
+        dvarx(NI+1)=dvarx(1)
+
+        var(NI+1,j,k)= var(1,j,k) 
+        var(0,j,k)= var(NI,j,k) 
+         
+        do i=1,NI
+
+         if (uf(i,j,k).gt.0.d0) then 
+           left= Eighth*(dvarx(i) -dvarx(i-1)) 
+           ctr= Half* (var(i+1,j,k) +var(i,j,k)) 
+           fc= ctr -left 
+           call ultim(var(i-1,j,k),var(i,j,k),var(i+1,j,k),dvarx(i),dvarx(i-1),courinv,fc)         
+           varflx(i,j,k)= uf(i,j,k)*fc 
+          else 
+           if(i==NI) then                  
+             i2=0;
+            else
+             i2=i;
+           endif
+           right= Eighth*(dvarx(i2+1) -dvarx(i2)) 
+           ctr= Half* (var(i2+1,j,k) +var(i,j,k)) 
+           fc= ctr - right 
+           call ultim(var(i2+2,j,k),var(i2+1,j,k),var(i,j,k),dvarx(i),dvarx(i2+1),courinv,fc)           
+           varflx(i,j,k)= uf(i,j,k)*fc 
+         end if 
+      end do
+      varflx(0,j,k)= varflx(NI,j,k) 
+    end do 
+  end do 
+
+  do k=1,NK 
+    do j=1,NJ 
+      do i=1,NI 
+        uvarx(i,j,k)=varflx(i,j,k) -varflx(i-1,j,k) 
+      end do 
+    end do 
+  end do 
+
+                                                       
+  !     y-direction                                                       
+  !     ----------- 
+                                                                     
+  do k=1,NK 
+    do i=1,NI 
+      !     dTy,dsy,.... at faces...                                          
+      do j=0,NJ,NJ 
+        dvary(j)= 0.d0 
+      end do 
+      do j=1,NJ-1 
+        dvary(j)= var(i,j+1,k) - var(i,j,k) 
+      end do 
+      var(i,0,k)= var(i,1,k) 
+      var(i,NJ+1,k)= var(i,NJ,k) 
+      do j=1,NJ-1 
+        if (vf(i,j,k).ge.0.d0) then 
+          left= Eighth*(dvary(j) -dvary(j-1)) 
+          ctr= Half* (var(i,j+1,k) +var(i,j,k)) 
+          fc= ctr -left 
+          call ultim(var(i,j-1,k),var(i,j,k),var(i,j+1,k),dvary(j),dvary(j-1),courinv,fc)         
+          varflx(i,j,k)= vf(i,j,k)*fc 
+        else 
+         right= Eighth*(dvary(j+1) -dvary(j)) 
+         ctr= Half* (var(i,j+1,k) +var(i,j,k)) 
+         fc= ctr - right 
+         call ultim(var(i,j+2,k),var(i,j+1,k),var(i,j,k),dvary(j),dvary(j+1),courinv,fc)           
+         varflx(i,j,k)= vf(i,j,k)*fc 
+       end if 
+     end do 
+!     Solid Boundaries                                                  
+      do j=0,NJ,NJ 
+        varflx(i,j,k)= 0.d0 
+      end do 
+    end do 
+  end do 
+                                                                        
+  do k=1,NK 
+    do i=1,NI 
+      do j=1,NJ 
+        uvarx(i,j,k)= (varflx(i,j,k) -varflx(i,j-1,k) ) + uvarx(i,j,k) 
+       end do 
+     end do 
+  end do 
+            
+
+                                                           
+!     z-direction                                                       
+!     -----------                                                       
+      do j=1,NJ 
+         do i=1,NI 
+         !     dTz,dsz,.... at faces...                                          
+            k=0 
+            dvarz(k)= 0.d0 
+!                                                                       
+            var(i,j,k)= var(i,j,k+1) 
+!                                                                       
+            do k=1,NK-1 
+               dvarz(k)= var(i,j,k+1) - var(i,j,k) 
+            end do 
+!     Top boundary - Zero gradient                                      
+            do k=NK,NK+1 
+               dvarz(k)= 0.d0 
+            end do 
+!     Linear extrapolation                                              
+            var(i,j,NK+1)= var(i,j,NK) 
+                                                                        
+            do k=1,NK 
+                                                                        
+               if (wf(i,j,k).ge.0.d0) then 
+                                                                        
+                  left= Eighth*(dvarz(k) -dvarz(k-1)) 
+                  ctr= Half* (var(i,j,k+1) +var(i,j,k)) 
+                  fc= ctr -left 
+                  call ultim(var(i,j,k-1),var(i,j,k),                   &
+     &                 var(i,j,k+1),dvarz(k),dvarz(k-1),courinv,fc)         
+                  varflx(i,j,k)= wf(i,j,k)*fc 
+                                                                        
+                                                                        
+               else 
+                                                                        
+                  if (k.eq.NK) then 
+                     varflx(i,j,k)= wf(i,j,k)*Half*                       &
+     &                    (var(i,j,k+1) +var(i,j,k))                    
+                     goto 209 
+                  endif 
+                                                                        
+                  right= Eighth*(dvarz(k+1) -dvarz(k)) 
+                  ctr= Half* (var(i,j,k+1) +var(i,j,k)) 
+                  fc= ctr - right 
+                  call ultim(var(i,j,k+2),var(i,j,k+1),                 &
+     &                 var(i,j,k),dvarz(k),dvarz(k+1),courinv,fc)           
+                  varflx(i,j,k)= wf(i,j,k)*fc 
+
+                                                                        
+               end if 
+                                                                        
+  209       end do 
+!     Solid Boundary                                                    
+            k=0 
+            varflx(i,j,k)= 0.d0 
+         end do 
+      end do 
+                       
+  if(selvar==1) uTx(:,:,:)=uvarx(:,:,:)
+  if(selvar==2) usx(:,:,:)=uvarx(:,:,:)
+  if(selvar==3) uux(:,:,:)=uvarx(:,:,:)
+  if(selvar==4) uvx(:,:,:)=uvarx(:,:,:)
+  if(selvar==5) uwx(:,:,:)=uvarx(:,:,:)
+
+  do it=1,ntr
+    if(selvar==5+it) uTrx(it,:,:,:)=uvarx(:,:,:)
+
+  enddo
+
+  if(selvar==1) Tflx(:,:,:)=varflx(:,:,:)
+  if(selvar==2) sflx(:,:,:)=varflx(:,:,:)
+  if(selvar==3) uflx(:,:,:)=varflx(:,:,:)
+  if(selvar==4) vflx(:,:,:)=varflx(:,:,:)
+  if(selvar==5) wflx(:,:,:)=varflx(:,:,:)
+
+  do it=1,ntr
+    if(selvar==5+it) Trflx(it,:,:,:)=varflx(:,:,:)
+
+  enddo
+
+
+enddo !selvar
+ 
+
+                                                
+!      call diffusion(sdif,Trdif,udif,vdif,m,step) !original
+
+
+! COMMENTED !!
+       call diffusion(sdif,Tdif,Trdif,udif,vdif,m,step) !modified by amala, add Tr in
+
+
+                                                                        
+!=      call biharmonic(udif,vdif,m,step)                               
+!1/25/05 moved     call viscous(udif,vdif,wdif,m)                       
+!                                                                       
+      do 250 k=1,NK 
+         do 251 j=1,NJ 
+            do 252 i=1,NI 
+               uux(i,j,k)= uux(i,j,k) + (uflx(i,j,k) -uflx(i,j,k-1) )   &
+     &              - udif(i,j,k)                                       
+               uvx(i,j,k)= uvx(i,j,k) + (vflx(i,j,k) -vflx(i,j,k-1) )   &
+     &              - vdif(i,j,k)                                       
+               uwx(i,j,k)= uwx(i,j,k) + (wflx(i,j,k) -wflx(i,j,k-1) ) 
+!     &              - wdif(i,j,k)                                      
+               usx(i,j,k)= usx(i,j,k) + (sflx(i,j,k) -sflx(i,j,k-1) )   &
+     &              - sdif(i,j,k)                                       
+               uTx(i,j,k)= uTx(i,j,k) + (Tflx(i,j,k) -Tflx(i,j,k-1) )   &
+     &              - Tdif(i,j,k)                                       
+!     put back sdif to calc. advec of rho, non-dim by Tl                
+               rhoadv(i,j,k)= (usx(i,j,k) +sdif(i,j,k))/Jac(i,j,k) 
+               do it=1,ntr 
+                  uTrx(it,i,j,k)= uTrx(it,i,j,k) + (Trflx(it,i,j,k)        &
+     &                 -Trflx(it,i,j,k-1) )                              
+!     NO VERTICAL DIFFUSION of PASSIVE TRACERS                          
+!=     &                 - Trdif(i,j,k)                                  
+               end do 
+  252       continue 
+  251    continue 
+  250 continue 
+      call viscous(udif,vdif,wdif,sdif,Tdif,Trdif,m) 
+      do k=1,NK 
+         do j=1,NJ 
+            do i=1,NI 
+               uux(i,j,k)= uux(i,j,k)-udif(i,j,k) 
+               uvx(i,j,k)= uvx(i,j,k)-vdif(i,j,k) 
+               uwx(i,j,k)= uwx(i,j,k)-wdif(i,j,k) 
+               usx(i,j,k)= usx(i,j,k)-sdif(i,j,k) 
+               uTx(i,j,k)= uTx(i,j,k)-Tdif(i,j,k) 
+!     LATERAL DIFFUSION OF PASSIVE TRACER IS TURNED ON / OFF            
+!=               do it=1,ntr                                            
+!=                  uTrx(it,i,j,k)= uTrx(it,i,j,k)-Trdif(it,i,j,k)         
+!=               end do                                                 
+            end do 
+         end do 
+      end do 
+!                                                                       
+!                                                                       
+!     *$*  ASSERT CONCURRENT CALL                                       
+      do 300 j=1,NJ 
+         do 301 i=1,NI 
+            do 302 k=1,NK 
+               dtJ= dtimel/Jac(i,j,k) 
+               cx(i,j,k)= u(i,j,k,0) -dtJ*uux(i,j,k) 
+               cy(i,j,k)= v(i,j,k,0) -dtJ*uvx(i,j,k) 
+               cz(i,j,k)= w(i,j,k,0) -dtJ*uwx(i,j,k) 
+               s(i,j,k,n)= s(i,j,k,0) -dtJ*usx(i,j,k) 
+               T(i,j,k,n)= T(i,j,k,0) -dtJ*uTx(i,j,k) 
+!==     &              - alph_restore(j)*(s(i,j,k,m)-s_restore(j))      
+               do it=1,ntr 
+                  Tr(it,i,j,k,n)= Tr(it,i,j,k,0) -dtJ*uTrx(it,i,j,k) 
+               end do 
+!     T_restore= 0.d0                                                   
+  302       continue 
+  301    continue 
+  300 continue 
+!              
+
+
+                                                         
+!+      call remineralize(n) ( called from momentum)                    
+!     Surface flux                                                      
+!=      call surfaceflux(dtime,n)                                       
+!                                                                       
+      return 
+                                                                        
+!     This extrapolation wasn't there before and is not                 
+!     needed because rho from outside the bndry is  not used            
+!     Boundary conditions                                               
+      do k=1,NK 
+         do i=1,NI 
+            s(i,0,k,n)= 3.d0*(s(i,1,k,n)-s(i,2,k,n))+s(i,3,k,n) 
+            s(i,NJ+1,k,n)= 3.d0*(s(i,NJ,k,n)-s(i,NJ-1,k,n))             &
+     &           +s(i,NJ-2,k,n)                                         
+            T(i,0,k,n)= 3.d0*(T(i,1,k,n)-T(i,2,k,n))+T(i,3,k,n) 
+            T(i,NJ+1,k,n)= 3.d0*(T(i,NJ,k,n)-T(i,NJ-1,k,n))             &
+     &           +T(i,NJ-2,k,n)                                         
+            do it=1,ntr 
+               Tr(it,i,0,k,n)= 3.d0*(Tr(it,i,1,k,n)-Tr(it,i,2,k,n))        &
+     &              +Tr(it,i,3,k,n)                                      
+               Tr(it,i,NJ+1,k,n)= 3.d0*(Tr(it,i,NJ,k,n)-Tr(it,i,NJ-1,k,n)) &
+     &              +Tr(it,i,NJ-2,k,n)                                   
+            end do 
+         end do 
+      end do 
+      do j=0,NJ+1 
+         do i=0,NI+1 
+            s(i,j,NK+1,n)= 3.d0*(s(i,j,NK,n)-s(i,j,NK-1,n))             &
+     &           +s(i,j,NK-2,n)                                         
+            s(i,j,0,n)= 3.d0*(s(i,j,1,n)-s(i,j,2,n))                    &
+     &           +s(i,j,3,n)                                            
+            T(i,j,NK+1,n)= 3.d0*(T(i,j,NK,n)-T(i,j,NK-1,n))             &
+     &           +T(i,j,NK-2,n)                                         
+            T(i,j,0,n)= 3.d0*(T(i,j,1,n)-T(i,j,2,n))                    &
+     &           +T(i,j,3,n)                                            
+            do it=1,ntr 
+               Tr(it,i,j,NK+1,n)= 3.d0*(Tr(it,i,j,NK,n)-Tr(it,i,j,NK-1,n)) &
+     &              +Tr(it,i,j,NK-2,n)                                   
+               Tr(it,i,j,0,n)= 3.d0*(Tr(it,i,j,1,n)-Tr(it,i,j,2,n))        &
+     &              +Tr(it,i,j,3,n)                                      
+            end do 
+         end do 
+      end do 
+!     periodic-ew boundaries                                            
+      do k=0,NK+1 
+         do j=0,NJ+1 
+            s(NI+1,j,k,n)= s(1,j,k,n) 
+            s(0,j,k,n)= s(NI,j,k,n) 
+            T(NI+1,j,k,n)= T(1,j,k,n) 
+            T(0,j,k,n)= T(NI,j,k,n) 
+            do it=1,ntr 
+               Tr(it,NI+1,j,k,n)= Tr(it,1,j,k,n) 
+               Tr(it,0,j,k,n)= Tr(it,NI,j,k,n) 
+            end do 
+         end do 
+      end do 
+   
+      s(:,0,:,n) = s(:,1,:,n)
+      T(:,0,:,n) = T(:,1,:,n)
+                                                                        
+!     call sTbc                                                         
+!==      call sTbc_periodicew(n)                                        
+!                                                                       
+      return 
+      END                                           
+                                                                        
+                                                                        
+      subroutine ultim(up,ct,dn,gdn,gup,courinv,fc) 
+!     ----------------------------------------------                    
+!     Implementation of the ULTIMATE limiter based on upstrm,dnstrm,ctr 
+!     points and d(phi)/dx at the up- and dnstrm locations              
+!     Returns the "ulitimate limited" face value of the variable        
+!     that should be multiplied by uf,vf or wf to give the flux.        
+       use header, only : rc_kind
+                                                                        
+      REAL(kind=rc_kind) :: up,ct,dn,gup,gdn,courinv,fc,ref,del,adel,acurv 
+                                                                        
+      del= dn -up 
+      adel= abs(del) 
+      acurv= abs(gdn -gup) 
+      if (acurv.ge.adel)  then 
+         fc= ct 
+         return 
+      else 
+         ref= up + (ct -up)*courinv 
+         if (del.gt.0) then 
+            fc= max(ct,fc) 
+            ref= min(ref,dn) 
+            fc= min(fc,ref) 
+         else 
+            fc= min(ct,fc) 
+            ref= max(ref,dn) 
+            fc= max(ref,fc) 
+         endif 
+      end if 
+      return 
+      END                                           

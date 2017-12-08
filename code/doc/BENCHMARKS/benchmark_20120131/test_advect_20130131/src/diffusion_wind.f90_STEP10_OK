@@ -1,0 +1,203 @@
+subroutine diffusion(sdif,Tdif,Trdif,udif,vdif,m,step) 
+  !     ---------------------------------------------                     
+  USE header
+  !     Wind Stress can be specified here                                 
+  !     Kz*du/dz = -Tx/rho,   Kz*dv/dz = -Ty/rho                          
+  !     use level m                                                       
+  !     computes d2s/dz2 at the cell centers.                             
+  !     fricu and fricv are u,v diffusion terms (in header)               
+  !     that need to be saved (if m.eq.0) for n2budget)                   
+
+  implicit none 
+      REAL(kind=rc_kind) :: dSin,posneg,facreverse,ywind,edgeice,edgeshelf
+      integer i,j,k,m,step,nday 
+!     stressmax is common in header and written out in main.f           
+      REAL(kind=rc_kind) :: zdep,yw,yset,ymid,timday,                        &
+     &     stress,ustar,Ekdepth,ff                                      
+                                                                        
+!     The viscosity is Kz*Kzmax                                         
+!     Use the same value for mixing tracers and momentum                
+      REAL(kind=rc_kind) :: dsdzfc(0:NK),dTdzfc(0:NK),drdzfc(0:NK),          &
+     &     dudzfc(0:NK),dvdzfc(0:NK),                                   &
+     &     sdif(NI,NJ,NK),Tdif(NI,NJ,NK),Trdif(ntr,NI,NJ,NK),           &
+     &     udif(NI,NJ,NK),                                              &
+     &     vdif(NI,NJ,NK),Kdudzb,Kdvdzb,Kdudzt,Kdvdzt,wzkth,fact,Cp     
+      REAL(kind=rc_kind) :: fac,facb,dfactor,Kzmax,facy,rhoinv,diff,      &
+     &     stressy,wgt,day,ts,ycenter, ymax,KzmaxTr,                    &
+     &     ztransit,zextent,thy                                         
+      parameter (Kzmax= 1.d-3, KzmaxTr=1.d-3) 
+
+      timday= dble(step)*dtf*TL/86400.d0 
+      stressmax=  0.1d0                                                
+                                                                        
+      ycenter = 0.5*(yc(NJ)+yc(1)) 
+      ymax = yc(NJ-10)-ycenter 
+      edgeshelf=0.03
+      ywind= 90.0 ! 25 km from coast
+                                                                        
+      stressy= 0.d0 
+                                                                        
+      ts=  dble(step)/4000.d0 
+!     Linear Drag                                                       
+      facb = RR*DL 
+!     Quadratic drag                                                    
+!==      facb = RR*DL*UL                                                
+      fac= 1.d0/(UL*DL*delta) 
+      fact = DL/UL 
+                                                                        
+      do j=1,NJ 
+          if (yc(j).gt.yfront) then 
+            facy = 0.1 
+         else 
+            facy =  max((yfront - yc(j))/yfront, 0.1d0) 
+         end if 
+         do i=1,NI 
+            do k=1,NK-1 
+               wzkth= wz(i,j,k) 
+               dsdzfc(k)= wzkth*(s(i,j,k+1,m)-s(i,j,k,m)) 
+               dTdzfc(k)= wzkth*(T(i,j,k+1,m)-T(i,j,k,m)) 
+               dudzfc(k)= wzkth*(u(i,j,k+1,m)-u(i,j,k,m)) 
+               dvdzfc(k)= wzkth*(v(i,j,k+1,m)-v(i,j,k,m)) 
+               drdzfc(k)= wzkth*(rho(i,j,k+1)-rho(i,j,k)) 
+            end do 
+            dsdzfc(0)= 0.d0 
+            dTdzfc(0)= 0.d0 
+            dudzfc(0)= 0.d0 
+            dvdzfc(0)= 0.d0 
+            drdzfc(0)= 0.0 
+            dsdzfc(NK)= 0.0 
+            dTdzfc(NK)= 0.0 
+            dudzfc(NK)= 0.0 
+            dvdzfc(NK)= 0.0 
+            drdzfc(NK)= 0.0 
+            stress= sqrt(stressx(j)*stressx(j)+ stressy*stressy) 
+            ustar = sqrt( stress /R0 ) 
+            ff= ffc(i,j)*FPAR 
+            Ekdepth= 0.4d0*ustar/ff 
+!     Set zextent                                                       
+            zextent= 0.5d0*Ekdepth 
+            ztransit = -Ekdepth 
+            do k=NK,0,-1 
+               Kz(i,j,k)= 1.d0 
+               zdep = zf(i,j,k)*DL 
+               thy = (1.d0 +tanh(((zdep-ztransit)/zextent)*PI))         &
+     &              *0.5d0                                              
+               Kz(i,j,k)= max(0.01d0,thy) 
+
+            end do 
+                                                                        
+                                                                        
+!     Quadratic drag                                                    
+!=            Kdudzb= facb*u(i,j,1,m)*abs(u(i,j,1,m))                  
+!=            Kdvdzb= facb*v(i,j,1,m)*abs(v(i,j,1,m))                  
+!     Linear Drag                                                       
+            Kdudzb= facb*u(i,j,1,m) 
+            Kdvdzb= facb*v(i,j,1,m) 
+                                                                        
+            rhoinv = 1.d0/rho(i,j,NK) 
+            Kdudzt= stressx(j)*rhoinv*fact 
+            Kdvdzt= stressy*rhoinv*fact 
+            k=1 
+!          -----                                                        
+            dfactor=  fac*Jac(i,j,k)*wz(i,j,k) 
+
+            sdif(i,j,k)= dfactor*KzmaxTr                                &
+     &           *(dsdzfc(k)*Kz(i,j,k)- dsdzfc(k-1)*Kz(i,j,k-1) )       
+            Tdif(i,j,k)= dfactor*KzmaxTr                                &
+     &           *(dTdzfc(k)*Kz(i,j,k)- dTdzfc(k-1)*Kz(i,j,k-1) )       
+            udif(i,j,k)= dfactor                                        &
+     &           *(dudzfc(k)*Kz(i,j,k)*Kzmax -Kdudzb )                  
+            vdif(i,j,k)= dfactor                                        &
+     &           *(dvdzfc(k)*Kz(i,j,k)*Kzmax -Kdvdzb )                  
+!                                                                       
+            do k=2,NK-1 
+               dfactor=  fac*KzmaxTr*Jac(i,j,k)*wz(i,j,k) 
+               sdif(i,j,k)= dfactor                                     &
+     &              *(dsdzfc(k)*Kz(i,j,k)- dsdzfc(k-1)*Kz(i,j,k-1) )    
+               Tdif(i,j,k)= dfactor                                     &
+     &              *(dTdzfc(k)*Kz(i,j,k)- dTdzfc(k-1)*Kz(i,j,k-1) )    
+               dfactor=  fac*Kzmax*Jac(i,j,k)*wz(i,j,k) 
+               udif(i,j,k)= dfactor                                     &
+     &              *(dudzfc(k)*Kz(i,j,k)- dudzfc(k-1)*Kz(i,j,k-1) )    
+               vdif(i,j,k)= dfactor                                     &
+     &              *(dvdzfc(k)*Kz(i,j,k)- dvdzfc(k-1)*Kz(i,j,k-1) )    
+                                                                        
+            end do 
+                                                                        
+            k=NK 
+!           ----                                                        
+            dfactor=  fac*Jac(i,j,k)*wz(i,j,k) 
+            sdif(i,j,k)= dfactor*KzmaxTr                                &
+     &           *(dsdzfc(k)*Kz(i,j,k)- dsdzfc(k-1)*Kz(i,j,k-1) )       
+            Tdif(i,j,k)= dfactor*KzmaxTr                                &
+     &           *(dTdzfc(k)*Kz(i,j,k)- dTdzfc(k-1)*Kz(i,j,k-1) )       
+            udif(i,j,k)= dfactor                                        &
+     &           *(Kdudzt - dudzfc(k-1)*Kz(i,j,k-1)*Kzmax )             
+            vdif(i,j,k)= dfactor                                        &
+     &           *(Kdvdzt - dvdzfc(k-1)*Kz(i,j,k-1)*Kzmax )             
+                                                                        
+         end do 
+      end do 
+                                                                        
+      return 
+      END                                           
+                                                                        
+                                                                        
+                                                                        
+                                                                        
+      subroutine viscosity(dudz,dvdz,drdz,i,j) 
+!     ---------------------------------------------                     
+        USE header
+!     Compute a Richardson number based vertical viscosity              
+!     coefficient Kz using the final velocities u,v and density         
+!     with the n=0 subscript                                            
+!     Kz is situated at k cell faces                                    
+!     The algorithm is from Rev Geophys., p 373, 1994. Large et al.     
+!                                                                       
+!     Assumes that rho is evaluated just prior to this call             
+                                                                        
+      integer i,j,k 
+                                                                        
+      integer n1 
+      parameter (n1=3) 
+      REAL(kind=rc_kind) :: fac,bvfreq,grho,RiCr,Ri,vshear 
+      REAL(kind=rc_kind) :: dudz(0:NK),dvdz(0:NK),drdz(0:NK) 
+      parameter (RiCr= 0.7d0) 
+                                                                        
+      grho= 9.81/R0 
+!     fac= DL/(UL*UL)                                                   
+      DLinv = 1.0/DL 
+      fac = UL*UL/(DL*DL) 
+!                                                                       
+!     Set kz(k=0)= 1. It is required only for the s,T equations, since  
+!     for the momentum equations,  K*du/dz= ru.                         
+!     Kz is not needed at k=0 and NK since stress bcs are used.         
+      Kz(i,j,0)= 0.d0 
+      Kz(i,j,NK)= 0.d0 
+!      if  (i.eq.16) write(100,*) 'j = ', j                             
+      do k=1,NK-1 
+         bvfreq=  -grho*drdz(k)*DLinv 
+!     BVfreq is N**2 and is in s^-2 if re-dim by DLinv                  
+         vshear= (dudz(k)*dudz(k) + dvdz(k)*dvdz(k))*fac 
+         if (vshear.eq.0.d0) then 
+!         if (vshear.le.1.d-12) then                                    
+            Ri= 100.d0 
+         else 
+            Ri= bvfreq/vshear 
+         end if 
+!     unstable density profile => Ri < 0                                
+         if (Ri.le.0.d0) then 
+            Kz(i,j,k)= 1.d0 
+         else if (Ri.lt.RiCr) then 
+            Kz(i,j,k)= (1.d0 - (Ri*Ri)/(RiCr*RiCr))**n1 
+         else 
+            Kz(i,j,k)= 0.d0 
+         endif 
+!         if ((i.eq.NI/2).and.(j.eq.NJ/2)) write(6,*) Ri ,bvfreq,vshear,
+!     &        Kz(i,j,k)                                                
+      end do 
+                                                                        
+!     The value of Kz to be used is  Kz(k) *Kzmax                       
+                                                                        
+      return 
+      END                                           

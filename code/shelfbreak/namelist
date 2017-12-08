@@ -1,0 +1,90 @@
+
+&PARAM
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!! DOMAIN AND INITIAL PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!---------- TIME SETTING ------------------------
+
+nsteps=4000,              ! number of time steps
+dtime_dim=432d0,           ! time step (in sec)
+
+!----------  HYDROSTATIC ------------------------
+
+fnhhy=1.0d0,               ! 1 if simulation is non-hydrostatic, 0 otherwise
+
+!--- PLANETARY VORTICITY ------------------------
+
+fplane=1,                  ! 1 if simulation is on a f-plane, 0 if f varies a sin(latitude)
+phi0deg=45,                ! phi0deg is the central latitude (in degree)
+
+!---------- GRID SETTING ------------------------
+
+dx=1d3,                    ! resolution in the x direction (in m) 
+dy=1d3,                    ! resolution in the y direction (in m)
+dztop_dim=1.,              ! uppermost cell thickness (in m)
+
+lv_flat_bottom=.FALSE.,    ! if TRUE, the bottom will be flat, otherwise, topog will be computed from the subroutine topog
+dzbot_dim=7.226,           ! lowermost cell thickness (in m). Only used if fixed_bottom_thickness is defined in inc/cppdefs.h. 
+total_depth=100d0,         ! depth of the domain (in m). Only used if lv_flat_bottom.
+use_Shchepetkin=.TRUE.,    ! switch for the baroclinic pressure term: 
+                           !   TRUE: Shchepetkin scheme is used.
+                           !   FALSE: Song scheme is used (only works for flat bottom).
+
+!- DIFFUSION AND FRICTION -----------------------
+
+Kx=1d0,                   ! diffusion in the horizontal, x direction (in m*m/s) 
+Ky=1d0,                   ! diffusion in the horizontal, y direction (in m*m/s)
+RR=0d0,                    ! bottom friction (in m/s) 
+
+!--------  OUTPUT SETTING -----------------------
+
+out1d_int=20000,           ! frequency of the 1D output (in number of timesteps)
+out2d_int=50,              ! frequency of the 2D output (in number of timesteps)
+out3d_int=4000,            ! frequency of the 3D output (in number of timesteps)
+
+dirout="./../output/"
+                           ! output directory
+
+
+!---------- PICKUP OPTION -----------------------
+
+pickup_int=10000,           ! 
+pickup_step=-10,/          !
+&
+
+
+&traj
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!! PARTICLES PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Will only be read if allow_particle is defined in inc/cppdefs.h
+
+
+NPR=3000,                   ! number of particles
+ini_particle_time=1,       ! time step for particle initialization
+parti_file_num=30,          ! number of output files
+parti_outfreq=50,          ! frequency of particles output (in number of timesteps)
+ 
+pcx=0.5,                   !     Four parameters to  
+pcy=0.5,                   !      customize the 
+pcz=0.8,                   !      initialization of
+pcr=0.4/                   !      the particles
+&
+
+
+&user
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!! USER PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! These variables can be set by the user to customize simulations.
+! For instance, T_ini=user1*T_prime+T_bckgrd
+
+user1=1.,
+user2=1.,
+user3=1.,
+user4=1.,
+user5=1000.,
+user6=1.,
+user7=1.,
+user8=1./

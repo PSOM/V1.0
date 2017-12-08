@@ -1,0 +1,94 @@
++ JBG. V0.5, 03/05/2013. 
++****************************************************************************************************************************************************
++       HEADSTART
++----------------------------
+
+Here is the minimal set of actions required prior to starting using psom.
+
+* step 1: Select the compiler you want to use. To do that, please edit the ./optfile to set the compiler you will use:       fcomp=...  (ifort, pgf95 etc.)
+
+* step 2: By default, psom will produce both binary files and netcdf files. If you do not have netcdf library installed or smply do not want to use netcdf files, 
+
+    - edit the file ./optfile          and set define_netcdf to F.
+    - edit the file ./model/inc/cppdef and undefine output_netcdf variable: 
+            #define file_output_cdf   by default
+            #undef file_output_cdf    if you do not want to use netcdf.
+
+   These two actions will disable the netcdf output. The executable will only produce binary files.
+
+Once you have done that, you simply follow the "configure, compile, run" sequence:
+
+* step 3: Configure.
+    
+    sh tools/configure.sh
+
+* step 4: Compile.
+
+    sh tools/compile.sh
+
+* step 5: Run.
+
+    ./exe/nh < ./namelist_default
+
+
++****************************************************************************************************************************************************
++      TESTCASES
++----------------------------
+
+
+The default run is trivial, because the initial state is no-motion and has only a stratification in s and T.
+In order to make simple tests, psom comes with three experiments that you can easily try on your machine:
+- wiggle      : This is a testcase with a wiggling front over a flat topography.  
+- NA          : This is a much more complex simulation of three fronts that go unstable. This casse has particles and tracers for biology.
+- shelfbreak  : Simulation of the Middle Atlantic Bight shelfbreak with a shelf front and a shelfbreak font. The topography includes a sharp slope at the break. It shows how to use the "user" namelist. 
+
+To try these simulations (for example wiggle), you simply have to do:
+
+* sh tools/clean.sh
+* sh tools/compile.sh wiggle
+* edit ./code/wiggle/src/namelist_wiggle so that the output directory exists
+* ./exe/nh_wiggle < wiggle/src/namelist_wiggle
+
+To know more about this process, read GET_STARTED_2.
+
+You can compare the kinetic energy you get with the ones that were obtained by JBG (first 10 time steps stored in tools/_values_reference. 
+
+
++****************************************************************************************************************************************************
++  ADDITIONAL INFORMATION
++----------------------------
+
+Some explanations:
+
+* About step 3.
+   - Step 3 will search for makedepend (which is necessary to create the makefile). The script will stop if makedepend is not installed. The makefile file will only be created if makedepend can be called.
+       -> Solution: download makedepend, which is free and widely accessible. For instance, on mac, you can simply sudo port install makedepend (if you have macport installed). 
+   - Furthermore, if you chose to use netcdf, an attempt to use nc-config will be tried. Note that the code has only been tested with netcdf4 libraries.
+     -> if nc-config is present, it will be used in order to set the links to netcdf libraries appropriately.
+     -> if not, you can complete this step yourself by linking the executable to the netcdf libraries. To do so, edit ./optfile before going through step 3.
+
+  Step 3 has two effects:
+    - ./optfile is modified ,
+    - ./namelist is customized.
+
+  To sum up, if step 3 fails, the easiest way is to install makedepend and/or to install netcdf libraries (in case you want to use netcdf output). After having done that, repeat step 3. 
+
+
+* Step 4 will 
+    - create the makefile in ./mkfile
+    - compile
+
+  A failure during step 4 most likely indicates that there is an error in the fortran code.
+
+
+* Step 5 will start and run the model.
+  By default, the namelist file contains the values of key parameters of the model, that you are likely willing to change. You can of course edit namelist to your convenience and repeat step 5.
+  By default, messages will appear on the screen and the output files will go to ../output/.
+
+
+========================================================================================
+
+The next step is to make your own simulations. To do that, please refer to GET_STARTED_2.
+
+
+

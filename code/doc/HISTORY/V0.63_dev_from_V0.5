@@ -1,0 +1,264 @@
+************************
+* Description of the work done to get V0.62 from V0.5
+* Jean-Baptiste Gilet,Sonaljit Mukherjee,Mariona Claret. 
+* 09/23/2013 -- 03/31/2014.
+
+List of actions:
+
+ACTION  1: Define the wind stress in a separate subroutine (JBG,MC).
+ACTION  2: Parallelize PSOM with OpenMP (JBG).
+ACTION  3: Merge action 1 and 2 into PSOM V0.61 (MC).
+ACTION  4: Work on structure to compile PSOM V0.61 (MC).
+ACTION  5: Couple GOTM to PSOM (SM)
+ACTION  6: Implement an implicit scheme for the vertical mixing (SM)
+ACTION  7: Implement action 5 and 6 into PSOM V0.61 resulting in PSOM V0.62 (MC).
+ACTION  8: Work on structure to compile PSOM V0.62 (MC).
+ACTION  9: Define the heat flux in a separate subroutine giving PSOM V0.63 (SM,MC).
+ACTION 10: Include reported bugs from V0.5.
+ACTION 11: Adapt the test cases of PSOM V0.5 to the new version.
+
+==> 6 new subroutines:
+
+-> Wind stress implementation
+/model/src/wind_stress.f90
+
+-> Specific to GOTM and the implicit scheme
+/model/src/fluxes.f90
+/model/src/init_tke.f90
+/model/src/shearn2.f90
+/model/src/couple_gotm.f90
+/model/src/solve_tridiag2.f90
+
+-> Diagnosis:
+/model/src/uv_geostrophic.f90
+
+==> Subroutines modified:
+
+-> Wind stress implementated separately from mixing_vertical
+/model/src/advection_and_mixing.f90
+/model/src/header.f90
+/model/src/write_cdf_x.f90
+/model/src/write_cdf_isopycnal.f90
+
+-> Parallel code:
+/model/src/advect.f90
+/model/src/hsolve.f90
+/model/src/linerelax_periodicew.f90
+/model/src/mixing_horizontal.f90
+/model/src/mixing_vertical.f90
+/model/src/mprove.d90
+/model/src/resid.f90
+
+-> GOTM:
+/model/src/main.f90
+/model/src/mixing_vertical.f90
+/model/src/advection_and_mixing.f90
+/model/src/header.f90
+
+**********************************
+* ACTION 1. 
+
+* The wind stress and the surface wind forcing are not defined in mixing_vertical but in a separate subroutine called wind_stress.f90.
+* Wind_stress is called in advection_and_mixing
+* Write_cdf_x.f90 and write_cdf_isopycnal are modified to write the new wind stress variables.
+
+1 new global variable: stress_top
+3 variables modified:
+stressx(NJ) is now the global variable stress_top_x(NI,NJ)
+stressy     is now the global variable stress_top_y(NI,NJ)
+stressmax   is now a local variable
+
+**********************************
+* ACTION 2
+
+Subroutines specific to the parallel code included.
+
+**********************************
+* ACTION 3
+
+Subroutines merged:
+- mixing_vertical.f90
+
+**********************************
+* ACTION 4
+
+- One new c-preprocessor definition in cppdefs.h: parallel.
+  This is needed in order to use static scheduling in linerelax_periodicew
+  subroutine*.
+
+*When using dynamic scheduling and wind forcing an artificial instability develops in the middle of fronts.
+
+- One new option in the optfile:
+
+  define_parallel=T compiles PSOM with the openmp flags below.
+
+  fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+  fflags_e=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O -u"
+
+If define_parallel=F the model will be run in a sequential way.
+
+(NOTE: The subroutines modified to run the code in parallel also
+work with the default flags that run the code in a sequential way. 
+So there is no need for two versions of the code: sequential and parallel)
+
+**********************************
+* ACTIONS 5 and 6
+
+- GOTM is called within mixing_vertical.f90 subroutine.
+- Some GOTM variables are made global in header.f90.
+- GOTM variables are initialized in main.f90 before the main loop.
+- The implicit scheme for vertical mixing is implemented within advection_and_mixing.f90 and independent of GOTM.
+
+**********************************
+* ACTION 7
+
+Subroutines merged:
+- advection_and_mixing.f90
+- mixing_vertical.f90
+- main.f90
+- header.f90
+- init_tke.f90
+
+Other changes:
+
++ GOTM related:
+
+- Logic variable solverlogic is replaced by the c-preprocessor definition implicit.
+- Logic variable gotmlogic   is replaced by the c-preprocessor definition gotm_call.
+- Variable selvar is made a global variable.
+- Array mat_D is moved from mixing_vertical to advection_mixing where the wind surface forcing is included.
+- Bug rho/rho2 in momentum corrected.
+
++ non-GOTM related:
+
+- Diagnostic subroutine uv_geostrophic to compute geostrophic velocitites added. It is called in write_cdf_2D_x.f90.  
+
+**********************************
+* ACTION 8
+
+- Two new c-preprocessor definitions in cppdefs.h:
+ 1) gotm_call: Compiles the subroutines specific to GOTM.
+ 2) implicit : Compiles the subroutine needed to compute Kz vertical profile implicitly as opposed to explicitely (by default) and includes the mat arrays.
+
+- Two new options in optfile:
+ 1) define_gotm=T includes the libraries and the list of objects necessary to compile PSOM with GOTM. 
+ 2) define_debug=T compiles the code with the following debugging flags:
+
+  For ifort:
+  fflags_o=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
+  fflags_e=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
+
+  For gfortran:
+  flags_o=" -x f95-cpp-input -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none -fbounds-check -frange-check -ftrapv"
+  fflags_e="-fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none -fbounds-check -frange-check -ftrapv"
+
+  NOTE: The debugging option is available to run the code in a sequential way only.
+
+**********************************
+* ACTION 9 
+
+* The heat fluxes are not defined in mixing_vertical but in a separate subroutine called heat_flux.f90.
+* Heat_flux is called in advection_and_mixing
+
+5 new global variable: 
+J_lambda1, J_lambda2, J_A, swr(NJ), qloss(NJ)
+
+1 new local  variable in advection_and_mixing:
+T_h(NI,NJ,NK)
+
+**********************************
+* ACTION 10 
+
+Bugs reported and fixed:
+
+-13Dec13. linerelax_periodicew.f90 
+line 28 uncommented. istart = int(ran3(iseed)*(nxm+1))
+
+-26Mar14. Tracerinit calling uncommented from the main loop, otherwise the tracer is ininitialized at each time-step.
+
+-26Mar14. In diag_n2budget.f90 line 153,
+i2=NK
+is replaced by
+i2=NI
+otherwise problems occurs such as
+At line 159 of file /Users/mclaret/PSOM/V06.01/code/model_build/src/diag_n2budget.f90
+Fortran runtime error: Index '64' of dimension 1 of array 'pv1' above upper bound of 16
+
+-26Mar14. In diag_n2 mistake on the extend of the loop. Line 27
+rpdz= 0.5* (rho(i,j,k+1) - SUM(rho(:,j,k-1))/NI -( rho(i,j,k-1)- SUM(rho(:,j,k-1))/NI))*wz(i,j,k)*DLinv
+is replaced by
+rpdz= 0.5* (rho(i,j,k+1) - SUM(rho(:,j,k+1))/NI -( rho(i,j,k-1)- SUM(rho(:,j,k-1))/NI))*wz(i,j,k)*DLinv
+
+-27March14. In write_cdf_2D_x.f90 variables 
+
+byslice    (NJ,NK),bysection (NJ,NK),bzslice(NJ,NK),psivslice(NJ,NK),
+psiwslice  (NJ,NK),vbbarsl   (NJ,NK),wbbarsl(NJ,NK),psieddysl(NJ,NK),
+rhobarslice(NJ,NK),wpvbarsl  (NJ,NK),pvbarsl(NJ,NK),trbarsl(ntr,NJ,NK)
+
+are made real*4 instead of rc_kind in order to write correctly in netcdfs.
+
+-27March14. linerelax is used with openMP static scheduling.
+When using dynamic scheduling and wind forcing an artificial instability develops in the middle of fronts.
+
+-Wind stress is initialized within init_tke.f90 instead of main.f90. 
+
+-27March14. Linerelax_periodicew is paralelized with static scheduling instead of dynamic.Dynamic scheduling generates an artificial instability at ocean fronts when wind forcing is applied.
+
+**********************************
+* ACTION 11
+
+-Wiggle scenario. GOTM and heat fluxes enabled. Subroutines of PSOM V0.63 modified for compatibility?
+*./src/heat_flux.f90.   swr set to 0.
+*./src/wind_stress.f90. stressx=stressy=0
+
+KE check? GOOD!
+PSOM V0.5:  #total kinetic energy =           10  2.92291497395605468E-003
+PSOM V0.63: #total kinetic energy =           10  2.92291497395605468E-003
+
+
+-Shelfbreak scenario. GOTM and heat fluxes enabled. Subroutines of PSOM V0.63 modified for compatibility?
+
+*./inc/cppdefs.h. New defs gotm_call and implicit included.
+*./src/init_st.f90.     From wiggle experiment.
+*./src/write_cdf.f90.   From wiggle experiment.
+*./src/heat_flux.f90.   swr set to 0.
+*./src/wind_stress.f90. stressx=stressy=0
+
+KE check? GOOD!
+PSOM V0.5:  #total kinetic energy =           87  6.98323779696504994E-004
+PSOM V0.63: #total kinetic energy =           87  6.98323779696501091E-004
+
+
+-NA scenario. Not compatible with GOTM.
+*./inc/cppdefs.h. New defs gotm_call and implicit included.
+*./src/heat_flux.f90 and ./src/wind_stress.f90 are empty subroutines only present
+to compile correctly. Wind forcing is included in mixing_vertical and heat fluxes
+in the cooling subroutine.
+*./src/ini_st.f90. Correction made: njf1, njf2, njf3, njf4 are integer variables.
+*Subroutines conflicting with PSOM V0.63 NOT changed?
+  +advection_and_mixing. 
+  +mixing_horizontal. 
+  +mixing_vertical.
+  +momentum
+  +write_cdf_2D_isopycnal
+  +write_cdf_2D_x
+*Header file V0.63 modifications:
+  +stressmax declaration.
+  +stress_top, stress_top_x, stress_top_y removed.
+  +qflux removed.
++Tracer init is only called once before the main program loop. 
+In V0.5 is called twice, before and within the main loop.
+
+KE check? GOOD!
+PSOM V0.5:  #total kinetic energy =          138  3.864319039087379E-003
+PSOM V0.63: #total kinetic energy =          138  3.864319039087876E-003
+
+New cases:
+
+BoB    scenario.
+waves  scenario.
+
+
+
+
+

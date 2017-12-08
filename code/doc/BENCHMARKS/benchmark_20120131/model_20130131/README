@@ -1,0 +1,17 @@
+README of psom
+
+V20120227. 2012/02/27, JBG.
+This version is the first to fit the new structure.
+
+* From Jinbow's version, the model has been altered to match Amala's version on the wiggle case. These modifications are listed in src/list_of_actions.
+* To fit the structure, a small number of modifications have been made: 
+    - mymodules.f90 has become header.f90.
+    - an additional variable has been created "dirout" to create output in a separate file. Main, write_op, writeksurf, smooth, topog have been slightly altered.  
+
+
+A few rules :
+* For modules, the X.f90 file must contain the X module. Otherwise, genmakefilel will not work.
+ * The @ symbol is used as a special character and should not be used in .f90 files or in optfile.
+
+
+

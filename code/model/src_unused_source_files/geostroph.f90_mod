@@ -1,0 +1,165 @@
+  subroutine geostroph(n) 
+!     ---------------------------------------------                     
+  USE header
+!  USE rpgrads
+!     modified for periodicew bc                                        
+!     ---------------------------                                       
+!     Sets up the initial velocities so that they are in geostrophic bal
+!     with the initial density field.                                   
+!      IMPLICIT NONE                                           
+      integer i,j,k,n,iter,imax,jmax,kmax,m 
+      REAL(kind=rc_kind) :: uxi,vyj,hxi,heta,hx,hy,px,py,ujfc,pyjfc 
+      REAL(kind=rc_kind) :: res,resmax,fiter,fzero 
+      REAL(kind=rc_kind) :: ainv,be2,fac2,wzsk,wxsk,wysk,Jack,pxi,peta,      &
+     &     psig,pgrad,con,pz                                            
+      REAL(kind=rc_kind) ::  kaph1
+      ! pyjfc added on 2012/02/14                                                                      
+      
+                                                                  
+
+   !------------------------
+   ! Initialization of some constants
+
+      kaph1= 1.d0 -kappah 
+      fzero= 0.d0 
+      fiter= 0.0 
+      iter = 1 
+      con = 1.0 -qpr 
+      resmax = 1.d-20 
+
+   !------------------------
+
+      ! Computation of drpx, drpy
+      call rpevalgrad(n) 
+
+
+ 101 do j=1,NJ 
+     do i=1,NI 
+
+       ! Computation of hx, hy
+       hxi= 0.5d0*( h(i+1,j)-h(i-1,j) ) 
+       heta= 0.5d0*( h(i,j+1)-h(i,j-1) ) 
+       hx= ux(i,j)*hxi +vx(i,j)*heta 
+       hy= uy(i,j)*hxi +vy(i,j)*heta 
+       !---------------------
+
+       do k=1,NK 
+         ! Computation of px, py
+         pxi= 0.5d0*(p(i+1,j,k)-p(i-1,j,k)) 
+         peta= 0.5d0*(p(i,j+1,k)-p(i,j-1,k)) 
+         psig= 0.5d0*(p(i,j,k+1)-p(i,j,k-1)) 
+         px= (ux(i,j)*pxi +vx(i,j)*peta +wx(i,j,k)*psig) 
+         py= (uy(i,j)*pxi +vy(i,j)*peta +wy(i,j,k)*psig) 
+         !---------------------
+
+         res = ffc(i,j)*u(i,j,k,n) + (qpr*py +drpy(i,j,k)+gpr*hy)                        
+         if (abs(res).gt.abs(resmax)) then 
+            resmax = res 
+            imax = i 
+            jmax = j 
+            kmax = k 
+         end if 
+
+         ! Computation of u and v based on the 3 pressure terms.                                                           
+         u(i,j,k,n) = - ( qpr*py + drpy(i,j,k) + gpr*hy )/( ffc(i,j) )                                          
+         v(i,j,k,n) =   ( qpr*px + drpx(i,j,k) + gpr*hx )/( ffc(i,j) )                                          
+         !---------------------
+       end do ! <- k 
+     end do ! <- i
+
+     ! Boundary conditions
+     do k=1,NK 
+        u(0,j,k,n)    = u(NI,j,k,n);  v(0,j,k,n)= v(NI,j,k,n); 
+        u(NI+1,j,k,n) = u(1,j,k,n);  v(NI+1,j,k,n) = v(1,j,k,n) 
+     end do 
+    !---------------------
+
+  end do ! <- j
+
+
+  write(6,*) iter,'geostroph',imax,jmax,kmax,resmax 
+                                                                   
+
+
+  !     COMPUTATION OF THE NH PRESSURE                                               
+  if (fnhhy.gt.0.9) then 
+     call coriolis(n) 
+     call srcface_nopy(n) 
+     call calcskfc 
+                                                                    
+     fac2= EPS*lambda 
+     be2= beta*EPS*EPS 
+     ainv= 1.d0/apr 
+     do j=1,NJ 
+        do i=1,NI 
+           do k= NK,0,-1 
+              pgrad = fiter* (   0.25*( p(i+1,j,k+1)+p(i+1,j,k)-p(i-1,j,k+1)-p(i-1,j,k) ) *gqk(i,j,k,1)   &
+                       &       + 0.25*( p(i,j+1,k+1)+p(i,j+1,k)-p(i,j-1,k+1)-p(i,j-1,k) ) *gqk(i,j,k,2) )                        
+                                                                    
+              if (k.eq.NK) then !   Use the BC that p(NK)+p(NK+1) = 0.0  (p=0 at the free-surf)       
+                 p(i,j,k) = 0.5*(pgrad + skfc(i,j,k))/gqk(i,j,k,3) 
+              else 
+                 p(i,j,k) = (p(i,j,k+1)*gqk(i,j,k,3) + pgrad + skfc(i,j,k))/gqk(i,j,k,3)                   
+              end if 
+           end do 
+        end do 
+     end do 
+
+     call mgpfill(fzero,p) 
+
+     do m=1,8 !     filter                                                            
+        do k=0,NK+1 
+           do j=1,NJ 
+              do i=0,NI+1 
+                 p(i,j,k)= 0.5*p(i,j,k)+0.25*(p(i,j-1,k)+p(i,j+1,k))                                  
+              end do 
+           end do 
+        end do 
+     end do 
+
+ continue 
+
+     iter = iter +1 
+     fiter = 1.0 
+  end if 
+  !     end of computation of NH pressure                                    
+
+  if ((iter.lt.50).and.(fnhhy.ge.0.001).and.(abs(resmax).ge.1.d-15)) goto 101                                                     
+
+!
+! ---- END OF THE LOOP
+!
+
+
+
+
+! INTERPOLATION ON THE FACES:
+                                                         
+      do j=1,NJ 
+         do i=0,NI 
+            do k=1,NK 
+            uf(i,j,k)= (   ux(i+1,j)*u(i+1,j,k,n) + ux(i,j)*u(i,j,k,n)      &
+                    &    + uy(i+1,j)*v(i+1,j,k,n) + uy(i,j)*v(i,j,k,n) )*0.5*Jifc(i,j,k)                                         
+            end do 
+         end do 
+      end do 
+      do j=0,NJ 
+         do i=1,NI 
+            do k=1,NK 
+               vf(i,j,k)= 0.5*Jjfc(i,j,k)*                           &
+                   & (   vx(i,j+1)*u(i,j+1,k,n) + vx(i,j)*u(i,j,k,n)   &
+                   &   + vy(i,j+1)*v(i,j+1,k,n) + vy(i,j)*v(i,j,k,n) )                                 
+            end do 
+         end do 
+      end do 
+                             
+!-----------------------------
+                                        
+   
+      if (rect.eqv.(.false.)) then 
+         write(6,*) 'need to modify compuation of face velocities in subroutine geostroph'                                     
+         stop 
+      endif 
+                                                                        
+      return 
+      END                                           

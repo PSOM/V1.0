@@ -1,0 +1,78 @@
+###############################
+# optfile
+#
+# This file is where the user can provide for vital information.
+# It needs not to be executed. It will be read by various scripts, ans should stay where it is.
+# Warning: The symbol "dirc=/Users/jgilet/work_on_structure/V0.5_github" is reserved for special use. Please do not use it in this file!
+#
+# JBG. 03/06/2013.
+#---------------------------------------------------------------
+
+###########################################################
+# MINIMAL INFORMATION TO BE PROVIDED BY THE USER.
+#
+# .
+# fcomp is the compiler used.
+# Example: fcomp="ifort", "gfortran" or "pgf95" will work. "xlf90" will unfortunately not work yet.
+fcomp=ifort
+
+# .
+# define_netcdf tells whether the netcdf output will be used: define_netcdf=T : netcdf will be used, define_netcdf=F : netcdf will not be used.
+# (note: also define output_cdf in cppdefs.h to allow this option)
+define_netcdf=T
+
+# define_gotm=T|F tells whether GOTM is|isn't coupled to PSOM.
+# (note: it is also needed to define gotm_call in cppdefs.h to allow this option)
+define_gotm=T
+
+# define_parallel=T|F compiles PSOM with openmp|non-openmp flags.
+define_parallel=T
+# (note: only available with ifort)
+
+# define_debug=T|F compiles PSOM with|without debugging options.
+# Debug option is available with define_parallel=F.
+# (note: debugging with gfortran results in better error explanations than with ifort)
+define_debug=F
+
+#
+###########################################################
+# ADDITIONAL INFORMATION IN CASE OF A NON-STANDARD INSTALLATION.
+#
+# .
+# dirc is the directory where 2012_psom has been installed.
+# Example: dirc="/Users/jstudent/ocean_dynamics/2012_psom" 
+dirc=/Users/mclaret/Dropbox/V0.63def
+
+# netcdf_dir_lib, _dir_inc and _lnk_flag tell where the netcdf libraries may be found, not used if define_netcdf=F
+netcdf_dir_lib=-L/usr/local/lib 
+netcdf_dir_inc=-I/usr/local/include
+
+#nelnk_flag=-lnetcdff -lnetcdf
+netcdf_lnk_flag=-lnetcdff -lnetcdf -lnetcdf
+
+# gotm_dir_lib and _dir_inc tell where the gotm libraries may be found, not used if define_gotm=F
+# (note: the libraries are compiler dependent)
+
+gotm_dir_lib=-L/Users/mclaret/PSOM/gotm-4.0.0/lib/IFORT/ -lturbulence_prod -lutil_prod -lmeanflow_prod
+gotm_dir_inc= -I/Users/mclaret/PSOM/gotm-4.0.0/modules/IFORT
+#gotm_dir_lib=-L/Users/mariona/PSOM/gotm-4.0.0/lib/GFORTRAN/ -lturbulence_prod -lutil_prod -lmeanflow_prod
+#gotm_dir_inc=-I/Users/mariona/PSOM/gotm-4.0.0/modules/GFORTRAN
+#gotm_dir_lib=-L/Users/mclaret/PSOM/gotm_stable/lib/IFORT/ -lturbulence_prod -lutil_prod -lmeanflow_prod
+#gotm_dir_inc= -I/Users/mclaret/PSOM/gotm_stable/modules/IFORT
+
+
+# .
+# lobj (2 lines only !) is the entire list of objects to be created in order to compile the executable.
+# It is splitted into the general routines (set of routines that enable the model to run) and the list of routines that enable netcdf output. The latter won't be used if define_netcdf=F.
+
+lobj_general=relaxation.o main.o ini_setup.o ini_h.o ini_tracer.o write_bin_mod.o momentum.o potdens.o facediv.o intpol_3rdorder.o srcface_3rdorder.o vcenter.o vface.o advect.o advection_and_mixing.o cdiv.o cpcors.o cpfine.o efill.o mgrid.o prolong.o resid.o restrict.o mgpfill.o pbc.o sor.o spline.o seval.o sigma_toplayer.o staticsigma.o hsolve.o hfill.o chfine.o hbc.o vhydro.o evalrho_sT.o evalrho_rho.o evalrho.o psolve.o uvchy.o newcor.o newsrc.o coriolis.o hsave.o smooth.o setbc.o linerelax_periodicew.o dgtsl.o diag_energy.o findz_topmoves.o meanh.o rpevalgrad_Song.o correctbc.o conadjust_sT.o mixing_vertical.o checks.o ini_uv.o ran3.o  mprove.o dgtsv.o pcorrect.o  diag_vort.o calcskfc.o cfdiv.o mixing_horizontal.o mixing_isopycnal.o mixing_isopycnal_biharmonic.o srcface_nopy.o tracersource_nut.o diag_streamfunction.o diag_n2budget.o diag_n2.o diag_pv.o sigma2z.o ini_st.o utils.o write_bin.o ini_topog.o rpevalgrad_Sche.o findsigma.o wind_stress.o heat_flux.o uv_geostrophic.o
+
+lobj_netcdf=write_cdf_2D_geopotential.o write_cdf.o write_cdf_1D_mooring.o write_cdf_2D_x.o write_cdf_2D_y.o write_cdf_2D_sigma.o write_cdf_2D_isopycnal.o write_cdf_3D_strain.o write_cdf_3D.o 
+
+lobj_gotm=couple_gotm.o init_tke.o shearn2.o solve_tridiag2.o
+
+# .
+# lmod (1 line only !) is the entire list of modules to be created in order to compile the executable.
+# The dependencies between modules and of objects are (supposed to be) handled by tools/genmakefilel. You should not have to care about these. The order of the modules in lmod should not matter also.
+lmod=header.mod particles.mod
+

@@ -1,0 +1,73 @@
+
+/*****************************************************************************
+
+WIGGLE CASE (Shchepetkin=.FALSE. ; no bottom friction, Kx=Ky=5e0)
+
+running IFORT (-real-size 64 -stand f03 -O3 -u)
+
+ #total kinetic energy =            0  2.923878105380647E-003
+ #total kinetic energy =            1  2.923787077440137E-003
+ #total kinetic energy =            2  2.923690494249620E-003
+ #total kinetic energy =            3  2.923594679104683E-003
+ #total kinetic energy =            4  2.923498725342523E-003
+ #total kinetic energy =            5  2.923402520906686E-003
+ #total kinetic energy =            6  2.923305964731671E-003
+ #total kinetic energy =            7  2.923208973694642E-003
+ #total kinetic energy =            8  2.923111489107862E-003
+ #total kinetic energy =            9  2.923013484840955E-003
+ #total kinetic energy =           10  2.922914973955968E-003
+
+running GFORTRAN (-fdefault-double-8 -fdefault-real-8 -ffree-line-length-none -ffixed-line-length-none)
+
+ #total kinetic energy =            0  2.92387810538055105E-003
+ #total kinetic energy =            1  2.92378707743991013E-003
+ #total kinetic energy =            2  2.92369049424925356E-003
+ #total kinetic energy =            3  2.92359467910437978E-003
+ #total kinetic energy =            4  2.92349872534243419E-003
+ #total kinetic energy =            5  2.92340252090666965E-003
+ #total kinetic energy =            6  2.92330596473147891E-003
+ #total kinetic energy =            7  2.92320897369451483E-003
+ #total kinetic energy =            8  2.92311148910793942E-003
+ #total kinetic energy =            9  2.92301348484106955E-003
+ #total kinetic energy =           10  2.92291497395605468E-003
+
+/*****************************************************************************
+
+NA CASE 
+
+running IFORT (-real-size 64 -stand f03 -O3 -u)
+
+ #total kinetic energy =            0  1.655998991948954E-003
+ #total kinetic energy =            1  1.681193626128431E-003
+ #total kinetic energy =            2  1.720916214815673E-003
+ #total kinetic energy =            3  1.769586886191130E-003
+ #total kinetic energy =            4  1.823677223476115E-003
+ #total kinetic energy =            5  1.881000498747635E-003
+ #total kinetic energy =            6  1.940245927909346E-003
+ #total kinetic energy =            7  2.000645141288926E-003
+ #total kinetic energy =            8  2.061758579562066E-003
+ #total kinetic energy =            9  2.123364069105444E-003
+ #total kinetic energy =           10  2.185350392839101E-003
+
+
+
+
+
+/*****************************************************************************
+
+SHELFBREAK CASE
+
+running IFORT (-real-size 64 -stand f03 -O3 -u)
+
+ #total kinetic energy =            0  6.989494852095008E-004
+ #total kinetic energy =            1  6.989061672859123E-004
+ #total kinetic energy =            2  6.989021263186333E-004
+ #total kinetic energy =            3  6.988969762246776E-004
+ #total kinetic energy =            4  6.988876835288077E-004
+ #total kinetic energy =            5  6.988767011364695E-004
+ #total kinetic energy =            6  6.988636720452844E-004
+ #total kinetic energy =            7  6.988498652429219E-004
+ #total kinetic energy =            8  6.988351849488474E-004
+ #total kinetic energy =            9  6.988197311951431E-004
+ #total kinetic energy =           10  6.988033118640051E-004
+
