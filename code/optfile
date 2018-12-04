@@ -14,7 +14,7 @@
 # .
 # fcomp is the compiler used.
 # Example: fcomp="ifort", "gfortran" or "pgf95" will work. "xlf90" will unfortunately not work yet.
-fcomp=ifort
+fcomp=gfortran
 
 # .
 # define_netcdf tells whether the netcdf output will be used: define_netcdf=T : netcdf will be used, define_netcdf=F : netcdf will not be used.
@@ -23,7 +23,7 @@ define_netcdf=T
 
 # define_gotm=T|F tells whether GOTM is|isn't coupled to PSOM.
 # (note: it is also needed to define gotm_call in cppdefs.h to allow this option)
-define_gotm=T
+define_gotm=F
 
 # define_parallel=T|F compiles PSOM with openmp|non-openmp flags.
 define_parallel=T
@@ -41,11 +41,11 @@ define_debug=F
 # .
 # dirc is the directory where 2012_psom has been installed.
 # Example: dirc="/Users/jstudent/ocean_dynamics/2012_psom" 
-dirc=/Users/mclaret/Dropbox/V0.63def
+dirc=/Users/crocha/Code/PSOM/V1.0
 
 # netcdf_dir_lib, _dir_inc and _lnk_flag tell where the netcdf libraries may be found, not used if define_netcdf=F
 netcdf_dir_lib=-L/usr/local/lib 
-netcdf_dir_inc=-I/usr/local/include
+netcdf_dir_inc=-I/usr/local/Cellar/netcdf/4.6.1_4/include
 
 #nelnk_flag=-lnetcdff -lnetcdf
 netcdf_lnk_flag=-lnetcdff -lnetcdf -lnetcdf

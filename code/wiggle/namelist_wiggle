@@ -6,12 +6,12 @@
 
 !---------- TIME SETTING ------------------------
 
-nsteps=10,                 ! number of time steps
-dtime_dim=432d0,           ! time step (in sec)
+nsteps=10000,                 ! number of time steps
+dtime_dim=432d0,              ! time step (in sec)
 
 !----------  HYDROSTATIC ------------------------
 
-fnhhy=1.0d0,               ! 1 is simulation is non-hydrostatic, 0 otherwise
+fnhhy=1.0d0,                  ! 1 is simulation is non-hydrostatic, 0 otherwise
 
 !--- PLANETARY VORTICITY ------------------------
 
@@ -34,13 +34,13 @@ use_Shchepetkin=.FALSE.,   ! switch for the baroclinic pressure term:
 
 Kx=5d0,                   ! diffusion in the horizontal, x direction (in m*m/s) 
 Ky=5d0,                   ! diffusion in the horizontal, y direction (in m*m/s)
-RR=0d0,                    ! bottom friction (in m/s) 
+RR=0d0,                   ! bottom friction (in m/s) 
 
 !--------  OUTPUT SETTING -----------------------
 
 out1d_int=20000,           ! frequency of the 1D output (in number of timesteps)
 out2d_int=2,              ! frequency of the 2D output (in number of timesteps)
-out3d_int=1000,            ! frequency of the 3D output (in number of timesteps)
+out3d_int=500,            ! frequency of the 3D output (in number of timesteps)
 
 dirout="./../output/"
                            ! output directory

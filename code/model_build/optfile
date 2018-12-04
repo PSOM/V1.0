@@ -1,5 +1,5 @@
 
-fcomp=ifort
+fcomp=gfortran
 
 define_netcdf=T
 
@@ -9,10 +9,10 @@ define_parallel=T
 
 define_debug=F
 
-dirc=/Users/mathieudever/Documents/V1.0-master
+dirc=/Users/crocha/Code/PSOM/V1.0
 
 netcdf_dir_lib=-L/usr/local/lib 
-netcdf_dir_inc=-I/usr/local/include
+netcdf_dir_inc=-I/usr/local/Cellar/netcdf/4.6.1_4/include
 
 netcdf_lnk_flag=-lnetcdff -lnetcdf -lnetcdf
 

@@ -42,7 +42,7 @@ out1d_int=20000,           ! frequency of the 1D output (in number of timesteps)
 out2d_int=10,               ! frequency of the 2D output (in number of timesteps)
 out3d_int=1000,            ! frequency of the 3D output (in number of timesteps)
 
-dirout="./../output/",
+dirout="/Users/crocha/Code/PSOM/V1.0/output/",
                            ! output directory
 
 
