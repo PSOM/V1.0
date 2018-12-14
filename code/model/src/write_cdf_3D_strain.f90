@@ -29,6 +29,7 @@ subroutine write_cdf_3D_strain(step,n)
   integer :: idvn2, idvnsq100m, idvnsq30m, idvpe,idvpsiv,idvpsiw,idvpv, idvp,idvrhbar,idvrho,idvrnk
   integer :: idvstrain,idvstress,idvstr,idvs,idvtbar,idvtemp,idvtim,idvtr,idvt,idvu,idvvb,idvvc,idvvor,idvv
   integer :: idvwb,idvwc,idvwpv,idvw,idvy,idvzsave,idvz,idwdx,idwdy,idwdz,ipos
+  integer :: idrdx,idrdy,idrdz
 
   REAL(kind=rc_kind) ::  vol
 
@@ -63,7 +64,7 @@ subroutine write_cdf_3D_strain(step,n)
 
       u(NI+1,j,k,n)= u(1,j,k,n)
       v(NI+1,j,k,n)= v(1,j,k,n)
-      w(NI+1,j,k,n)= w(1,j,k,n) 
+      w(NI+1,j,k,n)= w(1,j,k,n)
       rho(NI+1,j,k)= rho(1,j,k)
    end do
 end do
@@ -107,23 +108,23 @@ do k=1,NK
          dudy(i,j,k)= LENinv*UL*                                  &
               (0.5*(u(i+1,j,k,n)-u(i-1,j,k,n))*uy(i,j) +             &
               0.5*(u(i,j+1,k,n) -u(i,j-1,k,n))*vy(i,j) +             &
-              fac*(u(i,j,kp1,n) -u(i,j,km1,n))*wy(i,j,k) )           
+              fac*(u(i,j,kp1,n) -u(i,j,km1,n))*wy(i,j,k) )
          dwdy(i,j,k)= LENinv*WL*                                  &
               (0.5*(w(i+1,j,k,n)-w(i-1,j,k,n))*uy(i,j) +             &
               0.5*(w(i,j+1,k,n) -w(i,j-1,k,n))*vy(i,j) +             &
-              fac*(w(i,j,kp1,n) -w(i,j,km1,n))*wy(i,j,k) )            
+              fac*(w(i,j,kp1,n) -w(i,j,km1,n))*wy(i,j,k) )
 
-         rdx(i,j,k) = LENinv*                                           &
+         drdx(i,j,k) = (gpr*10.d0/R0)*LENinv*                    &
               (0.5*(rho(i+1,j,k)-rho(i-1,j,k))*ux(i,j) +         &
               0.5*(rho(i,j+1,k) -rho(i,j-1,k))*vx(i,j) +         &
               fac*(rho(i,j,kp1) -rho(i,j,km1))*wx(i,j,k) )
 
-         rdy(i,j,k)= LENinv*                                            &
+         drdy(i,j,k)= (gpr*10.d0/R0)*LENinv*                     &
               (0.5*(rho(i+1,j,k)-rho(i-1,j,k))*uy(i,j) +         &
               0.5*(rho(i,j+1,k) -rho(i,j-1,k))*vy(i,j) +         &
               fac*(rho(i,j,kp1) -rho(i,j,km1))*wy(i,j,k) )
 
-         rdz(i,j,k)= fac*(rho(i,j,kp1) -rho(i,j,km1))*wz(i,j,k)*DLinv
+         drdz(i,j,k)= fac*(rho(i,j,kp1) -rho(i,j,km1))*wz(i,j,k)*DLinv*gpr*10.d0/R0
 
          dudz(i,j,k)= UL*fac*(u(i,j,kp1,n) -u(i,j,km1,n))*wz(i,j,k)   &
               *DLinv
@@ -144,7 +145,7 @@ end do
 
 
 
-idDatFile =  nccre(TRIM(dirout)//outname,NCCLOB,rcode)      
+idDatFile =  nccre(TRIM(dirout)//outname,NCCLOB,rcode)
 
 dims(1) = ncddef(idDatFile,'x',NI,rcode)
 dims(2) = ncddef(idDatFile,'y',NJ,rcode)
@@ -162,6 +163,9 @@ idvdz = ncvdef(idDatFile,'vdz',NCFLOAT,3,dims,rcode)
 idwdx = ncvdef(idDatFile,'wdx',NCFLOAT,3,dims,rcode)
 idwdy = ncvdef(idDatFile,'wdy',NCFLOAT,3,dims,rcode)
 idwdz = ncvdef(idDatFile,'wdz',NCFLOAT,3,dims,rcode)
+idrdx = ncvdef(idDatFile,'rdx',NCFLOAT,3,dims,rcode)
+idrdy = ncvdef(idDatFile,'rdy',NCFLOAT,3,dims,rcode)
+idrdz = ncvdef(idDatFile,'rdz',NCFLOAT,3,dims,rcode)
 !idvn = ncvdef(idDatFile,'Nsq',NCFLOAT,3,dims,rcode)
 !      idv1 = ncvdef(idDatFile,'vor1',NCFLOAT,3,dims,rcode)
 !      idv2 = ncvdef(idDatFile,'vor2',NCFLOAT,3,dims,rcode)
@@ -190,6 +194,9 @@ CALL ncvpt(idDatFile,idvdz, start, count, dvdz, rcode)
 CALL ncvpt(idDatFile,idwdx, start, count, dwdx, rcode)
 CALL ncvpt(idDatFile,idwdy, start, count, dwdy, rcode)
 CALL ncvpt(idDatFile,idwdz, start, count, dwdz, rcode)
+CALL ncvpt(idDatFile,idrdx, start, count, drdx, rcode)
+CALL ncvpt(idDatFile,idrdy, start, count, drdy, rcode)
+CALL ncvpt(idDatFile,idrdz, start, count, drdz, rcode)
 !      CALL ncvpt(idDatFile,idvn, start, count, freqN2, rcode)
 !     CALL ncvpt(idDatFile,idv1, start, count, vor1, rcode)
 !      CALL ncvpt(idDatFile,idv2, start, count, vor2, rcode)
