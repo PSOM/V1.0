@@ -11,7 +11,7 @@ subroutine write_cdf_3D_strain(step,n)
   integer i,idv,idvdy,j,k,n,kp1,km1
   REAL(kind=4) ::  dudx(NI,NJ,NK),dudy(NI,NJ,NK),dudz(NI,NJ,NK),dvdx(NI,NJ,NK),     &
        dvdy(NI,NJ,NK),dvdz(NI,NJ,NK),dwdx(NI,NJ,NK),dwdy(NI,NJ,NK),       &
-       dwdz(NI,NJ,NK),rdx(NI,NJ,NK),rdy(NI,NJ,NK),rdz(NI,NJ,NK)
+       dwdz(NI,NJ,NK),drdx(NI,NJ,NK),drdy(NI,NJ,NK),drdz(NI,NJ,NK)
   REAL(kind=rc_kind) ::  LENinv,const,fac
 
   REAL(kind=rc_kind) ::  rcode
