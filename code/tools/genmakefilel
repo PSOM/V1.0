@@ -88,30 +88,46 @@ out=$dirc"/code/mkfile/Makefile"
 
 if [ "$fcomp" = "ifort" ]; then
 
-  if [ "$dparallel" = "T" ]; then
+        if [ "$dparallel" = "T" ]; then
     # OpenMP flags
-    fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
-    fflags_e=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
-  elif [ "$ddebug" = "T" ]; then
+                # Flags that work on Mac Pros in the lab
+#                fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+#                fflags_e=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+
+                # FLags that work on HPC
+                fflags_o=" -fpp -real-size 64 -mcmodel=large -qopenmp -stand f03 -O3 -u"
+                fflags_e=" -fpp -real-size 64 -mcmodel=large -qopenmp -stand f03 -O3 -u"
+
+        elif [ "$ddebug" = "T" ]; then
     #debug mode:
-    fflags_o=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
-    fflags_e=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
-  else
-    #fflags_o=" -fpp -real-size 64 -O3 -u"
-    #fflags_e=" -fpp -real-size 64 -O3 -u"
+                fflags_o=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
+                fflags_e=" -fpp -real-size 64 -stand f03 -g -traceback -check all -ftrapuv -nozero  -fp-stack-check -u -gen-interfaces -warn all -check bounds"
+        else
 
-    fflags_o="-fpp -real-size 64 -Wl,-stack_size,0x40000000 -u"
-    fflags_e="-fpp -real-size 64 -Wl,-stack_size,0x40000000 -u" 
+                # Flags that work for HPC Poseidon
+                fflags_o="-fpp -real-size 64 -mcmodel=large -u"
+                fflags_e="-fpp -real-size 64 -mcmodel=large -u"
 
-    #fflags_o=" -fpp -real-size 64 -u"
-    #fflags_e=" -fpp -real-size 64 -u"
+                # Flags to profile the code on HPC
+#                fflags_o="-profile-functions -fpp -real-size 64 -mcmodel=large -u"
+#                fflags_e="-profile-functions -fpp -real-size 64 -mcmodel=large -u"
 
-    #fflags_o=" -fpp -real-size 64 -stand f03 -O3 -u"
-    #fflags_e=" -fpp -real-size 64 -stand f03 -O3 -u"
-  
-    #fflags_o=" -fpp -real-size 64 -stand f03 -u -O3 -parallel"
-    #fflags_e=" -fpp -real-size 64 -stand f03 -u -O3 -parallel"
-  fi
+                # Flags that work on Mac Pros in the lab
+#                fflags_o="-fpp -real-size 64 -Wl,-stack_size,0x40000000 -u"
+#                fflags_e="-fpp -real-size 64 -Wl,-stack_size,0x40000000 -u"
+
+                # Old flags
+                #fflags_o=" -fpp -real-size 64 -O3 -u"
+                #fflags_e=" -fpp -real-size 64 -O3 -u"
+                #fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -u"
+                #fflags_o=" -fpp -real-size 64 -mcmodel=large -u"
+                #fflags_o=" -fpp -real-size 64 -u"
+                #fflags_e=" -fpp -real-size 64 -u"
+                #fflags_o=" -fpp -real-size 64 -stand f03 -O3 -u"
+                #fflags_e=" -fpp -real-size 64 -stand f03 -O3 -u"
+                #fflags_o=" -fpp -real-size 64 -stand f03 -u -O3 -parallel"
+                #fflags_e=" -fpp -real-size 64 -stand f03 -u -O3 -parallel"
+        fi
 
 #--------------- GFORTRAN ----------------------------
 
