@@ -1,0 +1,29 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}Downloading PSOM}{2}{section.2}
+\contentsline {section}{\numberline {3}Setting-up PSOM}{2}{section.3}
+\contentsline {subsection}{\numberline {3.1}Fortran compiler and bash$\_$profile}{2}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}\texttt {optfile} and \texttt {configure.sh}}{3}{subsection.3.2}
+\contentsline {section}{\numberline {4}Running PSOM}{3}{section.4}
+\contentsline {section}{\numberline {5}Test Cases}{4}{section.5}
+\contentsline {subsection}{\numberline {5.1}Wiggles}{4}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}NA}{4}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}Shelfbreak}{4}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}NP\_summer and NP\_winter}{5}{subsection.5.4}
+\contentsline {section}{\numberline {6}Setting up your PSOM simulation}{5}{section.6}
+\contentsline {subsection}{\numberline {6.1}Create your experiment directory}{5}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Defining your model grid}{6}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}cppdefs.h}{7}{subsection.6.3}
+\contentsline {subsection}{\numberline {6.4}namelist}{8}{subsection.6.4}
+\contentsline {subsection}{\numberline {6.5}Defining the initial conditions}{9}{subsection.6.5}
+\contentsline {subsection}{\numberline {6.6}Wind stress}{9}{subsection.6.6}
+\contentsline {subsection}{\numberline {6.7}Surface Heat Fluxes}{10}{subsection.6.7}
+\contentsline {section}{\numberline {7}Particle tracking in PSOM}{10}{section.7}
+\contentsline {subsection}{\numberline {7.1}Non-sinking particles}{10}{subsection.7.1}
+\contentsline {subsection}{\numberline {7.2}Sinking particles}{12}{subsection.7.2}
+\contentsline {subsection}{\numberline {7.3}Reading unformatted binary output files}{12}{subsection.7.3}
+\contentsline {subsection}{\numberline {7.4}Customizing Particle-tracking in PSOM}{12}{subsection.7.4}
+\contentsline {subsubsection}{\numberline {7.4.1}Parameters in \texttt {namelist}}{12}{subsubsection.7.4.1}
+\contentsline {subsubsection}{\numberline {7.4.2}\texttt {particles.f90}}{13}{subsubsection.7.4.2}
+\contentsline {section}{\numberline {A}Appendix A}{15}{appendix.A}
+\contentsline {section}{\numberline {B}Appendix B - particle\_open\_bin.m}{19}{appendix.B}
+\contentsline {section}{\numberline {C}Appendix C - particle\_bin2csv}{21}{appendix.C}

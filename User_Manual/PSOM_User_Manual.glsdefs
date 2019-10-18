@@ -1,0 +1,750 @@
+\ifglsentryexists{NI}{}%
+{%
+\gls@defglossaryentry{NI}%
+{%
+name={NI},%
+sort={NI},%
+type={main},%
+first={NI},%
+firstplural={NIs},%
+text={NI},%
+plural={NIs},%
+description={Number of grid points in $i$-direction},%
+descriptionplural={Number of grid points in $i$-direction},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{NJ}{}%
+{%
+\gls@defglossaryentry{NJ}%
+{%
+name={NJ},%
+sort={NJ},%
+type={main},%
+first={NJ},%
+firstplural={NJs},%
+text={NJ},%
+plural={NJs},%
+description={Number of grid points in $j$-direction},%
+descriptionplural={Number of grid points in $j$-direction},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{NK}{}%
+{%
+\gls@defglossaryentry{NK}%
+{%
+name={NK},%
+sort={NK},%
+type={main},%
+first={NK},%
+firstplural={NKs},%
+text={NK},%
+plural={NKs},%
+description={Number of grid points in $k$-direction},%
+descriptionplural={Number of grid points in $k$-direction},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{dtf}{}%
+{%
+\gls@defglossaryentry{dtf}%
+{%
+name={dtf},%
+sort={dtf},%
+type={main},%
+first={dtf},%
+firstplural={dtfs},%
+text={dtf},%
+plural={dtfs},%
+description={Time step (non-dimensional)},%
+descriptionplural={Time step (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{wsink}{}%
+{%
+\gls@defglossaryentry{wsink}%
+{%
+name={wsink},%
+sort={wsink},%
+type={main},%
+first={wsink},%
+firstplural={wsinks},%
+text={wsink},%
+plural={wsinks},%
+description={Particle sinking velocity},%
+descriptionplural={Particle sinking velocity},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{stress_top_x}{}%
+{%
+\gls@defglossaryentry{stress_top_x}%
+{%
+name={stress\_top\_x},%
+sort={stress\_top\_x},%
+type={main},%
+first={stress\protect \_top\protect \_x},%
+firstplural={stress\protect \_top\protect \_xs},%
+text={stress\protect \_top\protect \_x},%
+plural={stress\protect \_top\protect \_xs},%
+description={Surface wind stress in x-direction},%
+descriptionplural={Surface wind stress in x-direction},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{stress_top_y}{}%
+{%
+\gls@defglossaryentry{stress_top_y}%
+{%
+name={stress\_top\_y},%
+sort={stress\_top\_y},%
+type={main},%
+first={stress\protect \_top\protect \_y},%
+firstplural={stress\protect \_top\protect \_ys},%
+text={stress\protect \_top\protect \_y},%
+plural={stress\protect \_top\protect \_ys},%
+description={Surface wind stress in y-direction},%
+descriptionplural={Surface wind stress in y-direction},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{stress_top}{}%
+{%
+\gls@defglossaryentry{stress_top}%
+{%
+name={stress\_top},%
+sort={stress\_top},%
+type={main},%
+first={stress\protect \_top},%
+firstplural={stress\protect \_tops},%
+text={stress\protect \_top},%
+plural={stress\protect \_tops},%
+description={Surface wind stress magnitude},%
+descriptionplural={Surface wind stress magnitude},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{wtotal}{}%
+{%
+\gls@defglossaryentry{wtotal}%
+{%
+name={wtotal},%
+sort={wtotal},%
+type={main},%
+first={wtotal},%
+firstplural={wtotals},%
+text={wtotal},%
+plural={wtotals},%
+description={Total particle vertical velocity (advection + sinking)},%
+descriptionplural={Total particle vertical velocity (advection + sinking)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{wzf}{}%
+{%
+\gls@defglossaryentry{wzf}%
+{%
+name={wzf},%
+sort={wzf},%
+type={main},%
+first={wzf},%
+firstplural={wzfs},%
+text={wzf},%
+plural={wzfs},%
+description={{Inverse thickness of a given $\sigma $-layer $\Delta \sigma /\Delta z = 1/\Delta z$} at cell faces},%
+descriptionplural={{Inverse thickness of a given $\sigma $-layer $\Delta \sigma /\Delta z = 1/\Delta z$} at cell faces},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{wz}{}%
+{%
+\gls@defglossaryentry{wz}%
+{%
+name={wz},%
+sort={wz},%
+type={main},%
+first={wz},%
+firstplural={wzs},%
+text={wz},%
+plural={wzs},%
+description={{Inverse thickness of a given $\sigma $-layer $\Delta \sigma /\Delta z = 1/\Delta z$} at cell center},%
+descriptionplural={{Inverse thickness of a given $\sigma $-layer $\Delta \sigma /\Delta z = 1/\Delta z$} at cell center},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{D}{}%
+{%
+\gls@defglossaryentry{D}%
+{%
+name={D},%
+sort={D},%
+type={main},%
+first={D},%
+firstplural={Ds},%
+text={D},%
+plural={Ds},%
+description={Model depth},%
+descriptionplural={Model depth},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{DL}{}%
+{%
+\gls@defglossaryentry{DL}%
+{%
+name={DL},%
+sort={DL},%
+type={main},%
+first={DL},%
+firstplural={DLs},%
+text={DL},%
+plural={DLs},%
+description={Characteristic depth scale},%
+descriptionplural={Characteristic depth scale},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{WL}{}%
+{%
+\gls@defglossaryentry{WL}%
+{%
+name={WL},%
+sort={WL},%
+type={main},%
+first={WL},%
+firstplural={WLs},%
+text={WL},%
+plural={WLs},%
+description={Scaling coefficient for vertical velocity},%
+descriptionplural={Scaling coefficient for vertical velocity},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{UL}{}%
+{%
+\gls@defglossaryentry{UL}%
+{%
+name={UL},%
+sort={UL},%
+type={main},%
+first={UL},%
+firstplural={ULs},%
+text={UL},%
+plural={ULs},%
+description={Scaling coefficient for horizontal velocity},%
+descriptionplural={Scaling coefficient for horizontal velocity},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{EPS}{}%
+{%
+\gls@defglossaryentry{EPS}%
+{%
+name={EPS},%
+sort={EPS},%
+type={main},%
+first={EPS},%
+firstplural={EPSs},%
+text={EPS},%
+plural={EPSs},%
+description={Rossby number},%
+descriptionplural={Rossby number},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{zc}{}%
+{%
+\gls@defglossaryentry{zc}%
+{%
+name={zc},%
+sort={zc},%
+type={main},%
+first={zc},%
+firstplural={zcs},%
+text={zc},%
+plural={zcs},%
+description={Depth of the cell centers (non-dimensional)},%
+descriptionplural={Depth of the cell centers (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{zf}{}%
+{%
+\gls@defglossaryentry{zf}%
+{%
+name={zf},%
+sort={zf},%
+type={main},%
+first={zf},%
+firstplural={zfs},%
+text={zf},%
+plural={zfs},%
+description={Depth of the cell faces (non-dimensional)},%
+descriptionplural={Depth of the cell faces (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{pfac}{}%
+{%
+\gls@defglossaryentry{pfac}%
+{%
+name={pfac},%
+sort={pfac},%
+type={main},%
+first={pfac},%
+firstplural={pfacs},%
+text={pfac},%
+plural={pfacs},%
+description={Stretching coefficient used ot determine vertical grid spacing},%
+descriptionplural={Stretching coefficient used ot determine vertical grid spacing},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{dztop}{}%
+{%
+\gls@defglossaryentry{dztop}%
+{%
+name={dztop},%
+sort={dztop},%
+type={main},%
+first={dztop},%
+firstplural={dztops},%
+text={dztop},%
+plural={dztops},%
+description={Thickness of the uppermost cell (non-dimensional)},%
+descriptionplural={Thickness of the uppermost cell (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{$u$}{}%
+{%
+\gls@defglossaryentry{$u$}%
+{%
+name={u},%
+sort={u},%
+type={main},%
+first={u},%
+firstplural={us},%
+text={u},%
+plural={us},%
+description={Velocity in $x$-direction (non-dimensional)},%
+descriptionplural={Velocity in $x$-direction (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{$v$}{}%
+{%
+\gls@defglossaryentry{$v$}%
+{%
+name={v},%
+sort={v},%
+type={main},%
+first={v},%
+firstplural={vs},%
+text={v},%
+plural={vs},%
+description={Velocity in $y$-direction (non-dimensional)},%
+descriptionplural={Velocity in $y$-direction (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{$w$}{}%
+{%
+\gls@defglossaryentry{$w$}%
+{%
+name={w},%
+sort={w},%
+type={main},%
+first={w},%
+firstplural={ws},%
+text={w},%
+plural={ws},%
+description={Velocity in $z$-direction (non-dimensional)},%
+descriptionplural={Velocity in $z$-direction (non-dimensional)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{dx}{}%
+{%
+\gls@defglossaryentry{dx}%
+{%
+name={dx},%
+sort={dx},%
+type={main},%
+first={dx},%
+firstplural={dxs},%
+text={dx},%
+plural={dxs},%
+description={Grid-spacing in the $x$-direction (in m)},%
+descriptionplural={Grid-spacing in the $x$-direction (in m)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{dy}{}%
+{%
+\gls@defglossaryentry{dy}%
+{%
+name={dy},%
+sort={dy},%
+type={main},%
+first={dy},%
+firstplural={dys},%
+text={dy},%
+plural={dys},%
+description={Grid-spacing in the $y$-direction (in m)},%
+descriptionplural={Grid-spacing in the $y$-direction (in m)},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
