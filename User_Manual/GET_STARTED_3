@@ -1,0 +1,89 @@
++ JBG, V0.5. 03/06/2013.
++****************************************************************************************************************************************************
++  HAVING MORE CONTROL
++----------------------------------------
+
+Here are some procedures you might want to follow in order to run your own simulations.
+
+************
+* Important: whether you are a user or a developer, you are strongly invited not to modify the files contained in code/model/ . 
+  This directory is designed to contain the latest version of the model, which is common to every user at a given time.
+  It is henceforth advisable to follow the steps described in "case 0" to modify the model according to your needs.
+************
+
+
+-------
+CASE 1: You want to have control over the netcdf library options.
+
+  Follow the standard procedure detailed in GET_STARTED_1. 
+  Between the "configure" and "compile" steps, edit the ./optfile to set the options that fit your environment. Be careful with the syntax. 
+
+--------
+CASE 2a: You do not want to use netcdf output:
+
+  By default, both binary and netcdf outputs are created. If you wish not to use netcdf and do not want to install netcdf libraries, follow these steps:
+
+   - edit ./optfile and set define_netcdf to "F" : 
+      define_netcdf=T           by default
+      define_netcdf=F           if you do not want using netcdf.
+
+
+   - edit ./model/inc/cppdef and undefine output_netcdf :
+      #define file_output_cdf   by default
+      #undef file_output_cdf    if you do not want to use netcdf.
+
+--------
+CASE 2b: You do not want to use binary output:
+
+  By default, both binary and netcdf outputs are created. If you wish not to use binary output, follow these steps prior to the 4 steps process described above:
+
+   - edit ./model/inc/cppdef and undefine output_netcdf :
+      #define file_output_bin   by default
+      #undef file_output_bin    if you do not want to use netcdf.
+
+
+-------
+CASE 3: You do not want to use the superceding trick:
+
+  Simply use " sh tools/compile.sh " without any argument. It will use the empty code/expe_template folder as the superseding directory. Because this directory does not contain any file, the call to compile will simply build the standard version of the model.
+
+-------
+CASE 4: You want to change the grid size.
+
+  step 1: Check model/inc/size.h.
+   
+     If your grid set appears in a commented line, copy model/inc/size.h in your_experiment/inc. Comment the uncommented line and uncomment the one you want.
+       Be aware that if your grid set requires more than 2Go, you might experience compilation issues. If so, you may fix the issue this way:
+         - edit  tools/genmakefilel and 
+         - replace the default compiling options by: 
+             fflags_o="-fpp -real-size 64 -mcmodel medium -shared-intel -stand 03 -u" 
+             fflags_e="-fpp -real-size 64 -mcmodel medium -shared-intel -stand 03 -u" 
+    
+
+     If your grid set does not appear in mode/inc/size.h, you can create the required line. To do so, 
+         - compile tools/preproc.f90. For instance, using ifort, ifort tools/preproc.f90 -o preproc
+         - run preproc: ./preproc
+         - fill the values that are asked. By default, ngrid=4 is a good choice.
+         - copy the last line the program provides in your_experiment/inc/size.h.
+
+  step 2: Compile and run.
+
+
+-------
+CASE 5: Check model output. If you work on the core of the model and expect that your modifications do not alter the model output, it is highly advisable to check that your modifications are neutral. A very crude tool can help you:  
+
+   sh tools/test_energy.sh
+
+   It will test the executable ./exe/nh with a standard namelist. It needs matlab installed. 
+
+
+-------
+CASE 6: You want to do some cleaning of the ./mkfile directory.
+   To clean up a bit the mkfile directory, you can use
+
+   # make -Cmkfile/ clean 
+
+   Use cleanmore instead of clean to also remove the executable file. 
+
+
+
