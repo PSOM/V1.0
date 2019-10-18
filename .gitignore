@@ -2,4 +2,14 @@
 *.tmp
 
 
+*.glo
+*.aux
+*.fls
+*.glsdefs
+*.fdb_latexmk
+*.ist
+*.log
+*.out
+*.synctex.gz
+*.toc
 *.git
