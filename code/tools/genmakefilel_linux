@@ -12,7 +12,6 @@
 # makedepend
 #
 # If you want to modify the compiling options, comment/uncomment the lines between l.70 and l.103.
-# This version is for Mac computers
 #
 ###########################
 
@@ -92,12 +91,12 @@ if [ "$fcomp" = "ifort" ]; then
         if [ "$dparallel" = "T" ]; then
     # OpenMP flags
                 # Flags that work on Mac Pros in the lab
-                fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
-                fflags_e=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+#                fflags_o=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
+#                fflags_e=" -fpp -real-size 64 -Wl,-stack_size,0x40000000 -openmp -stand f03 -O3 -u"
 
                 # FLags that work on HPC
-#                fflags_o=" -fpp -real-size 64 -mcmodel=large -qopenmp -stand f03 -O3 -u"
-#                fflags_e=" -fpp -real-size 64 -mcmodel=large -qopenmp -stand f03 -O3 -u"
+                fflags_o=" -fpp -real-size 64 -mcmodel=large -qopenmp -stand f03 -O3 -u"
+                fflags_e=" -fpp -real-size 64 -mcmodel=large -qopenmp -stand f03 -O3 -u"
 
         elif [ "$ddebug" = "T" ]; then
     #debug mode:

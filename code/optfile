@@ -32,7 +32,7 @@ define_parallel=T
 # define_debug=T|F compiles PSOM with|without debugging options.
 # Debug option is available with define_parallel=F.
 # (note: debugging with gfortran results in better error explanations than with ifort)
-define_debug=F
+define_debug=T
 
 #
 ###########################################################
@@ -41,7 +41,7 @@ define_debug=F
 # .
 # dirc is the directory where 2012_psom has been installed.
 # Example: dirc="/Users/jstudent/ocean_dynamics/2012_psom" 
-dirc=/Users/mclaret/Dropbox/V0.63def
+dirc=/Users/yuewu/master
 
 # netcdf_dir_lib, _dir_inc and _lnk_flag tell where the netcdf libraries may be found, not used if define_netcdf=F
 netcdf_dir_lib=-L/usr/local/lib 
@@ -53,19 +53,19 @@ netcdf_lnk_flag=-lnetcdff -lnetcdf -lnetcdf
 # gotm_dir_lib and _dir_inc tell where the gotm libraries may be found, not used if define_gotm=F
 # (note: the libraries are compiler dependent)
 
-gotm_dir_lib=-L/Users/mclaret/PSOM/gotm-4.0.0/lib/IFORT/ -lturbulence_prod -lutil_prod -lmeanflow_prod
-gotm_dir_inc= -I/Users/mclaret/PSOM/gotm-4.0.0/modules/IFORT
-#gotm_dir_lib=-L/Users/mariona/PSOM/gotm-4.0.0/lib/GFORTRAN/ -lturbulence_prod -lutil_prod -lmeanflow_prod
-#gotm_dir_inc=-I/Users/mariona/PSOM/gotm-4.0.0/modules/GFORTRAN
+gotm_dir_lib=-L/usr/local/gotm-4.0.0/lib/IFORT/ -lturbulence_prod -lutil_prod -lmeanflow_prod
+gotm_dir_inc= -I/usr/local/gotm-4.0.0/modules/IFORT
+#gotm_dir_lib=-L/usr/local/gotm-4.0.0/lib/GFORTRAN/ -lturbulence_prod -lutil_prod -lmeanflow_prod
+#gotm_dir_inc=-I/usr/local/gotm-4.0.0/modules/GFORTRAN
 #gotm_dir_lib=-L/Users/mclaret/PSOM/gotm_stable/lib/IFORT/ -lturbulence_prod -lutil_prod -lmeanflow_prod
 #gotm_dir_inc= -I/Users/mclaret/PSOM/gotm_stable/modules/IFORT
-
+export DYLD_LIBRARY_PATH=/opt/intel/lib
 
 # .
 # lobj (2 lines only !) is the entire list of objects to be created in order to compile the executable.
 # It is splitted into the general routines (set of routines that enable the model to run) and the list of routines that enable netcdf output. The latter won't be used if define_netcdf=F.
 
-lobj_general=relaxation.o main.o ini_setup.o ini_h.o ini_tracer.o write_bin_mod.o momentum.o potdens.o facediv.o intpol_3rdorder.o srcface_3rdorder.o vcenter.o vface.o advect.o advection_and_mixing.o cdiv.o cpcors.o cpfine.o efill.o mgrid.o prolong.o resid.o restrict.o mgpfill.o pbc.o sor.o spline.o seval.o sigma_toplayer.o staticsigma.o hsolve.o hfill.o chfine.o hbc.o vhydro.o evalrho_sT.o evalrho_rho.o evalrho.o psolve.o uvchy.o newcor.o newsrc.o coriolis.o hsave.o smooth.o setbc.o linerelax_periodicew.o dgtsl.o diag_energy.o findz_topmoves.o meanh.o rpevalgrad_Song.o correctbc.o conadjust_sT.o mixing_vertical.o checks.o ini_uv.o ran3.o  mprove.o dgtsv.o pcorrect.o  diag_vort.o calcskfc.o cfdiv.o mixing_horizontal.o mixing_isopycnal.o mixing_isopycnal_biharmonic.o srcface_nopy.o tracersource_nut.o diag_streamfunction.o diag_n2budget.o diag_n2.o diag_pv.o sigma2z.o ini_st.o utils.o write_bin.o ini_topog.o rpevalgrad_Sche.o findsigma.o wind_stress.o heat_flux.o uv_geostrophic.o
+lobj_general=relaxation.o main.o ini_setup.o ini_h.o ini_tracer.o write_bin_mod.o momentum.o potdens.o facediv.o intpol_3rdorder.o srcface_3rdorder.o vcenter.o vface.o advect.o advection_and_mixing.o cdiv.o cpcors.o cpfine.o efill.o mgrid.o prolong.o resid.o restrict.o mgpfill.o pbc.o sor.o spline.o seval.o sigma_toplayer.o staticsigma.o hsolve.o hfill.o chfine.o hbc.o vhydro.o evalrho_sT.o evalrho_rho.o evalrho.o psolve.o uvchy.o newcor.o newsrc.o coriolis.o hsave.o smooth.o setbc.o linerelax_periodicew.o dgtsl.o diag_energy.o findz_topmoves.o meanh.o rpevalgrad_Song.o correctbc.o conadjust_sT.o mixing_vertical.o checks.o ini_uv.o ran3.o  mprove.o dgtsv.o pcorrect.o  diag_vort.o calcskfc.o cfdiv.o mixing_horizontal.o mixing_isopycnal.o mixing_isopycnal_biharmonic.o srcface_nopy.o tracersource_nut.o diag_streamfunction.o diag_n2budget.o diag_n2.o diag_pv.o sigma2z.o ini_st.o utils.o write_bin.o ini_topog.o rpevalgrad_Sche.o findsigma.o wind_stress.o heat_flux.o uv_geostrophic.o 
 
 lobj_netcdf=write_cdf_2D_geopotential.o write_cdf.o write_cdf_1D_mooring.o write_cdf_2D_x.o write_cdf_2D_y.o write_cdf_2D_sigma.o write_cdf_2D_isopycnal.o write_cdf_3D_strain.o write_cdf_3D.o 
 
