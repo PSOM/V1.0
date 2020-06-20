@@ -116,14 +116,14 @@ USE header                                 ! Declaration of variables
 
 #ifdef file_output_cdf
  IF(pickup_step<-0.5) then
-        call write_cdf(step,0)
+ 	call write_cdf(step,0)
  ENDIF
 #endif
 
 #ifdef file_output_bin
  IF(pickup_step<-0.5) then
-        call write_bin(step)     ! write_bin deals with both the binary output and the pickup options (read and write)
- ENDIF                         
+ 	call write_bin(step)     ! write_bin deals with both the binary output and the pickup options (read and write)
+ ENDIF
 #endif
 
 #endif

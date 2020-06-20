@@ -28,13 +28,8 @@ dum = ran3(iseed)
 
 do j=1,nym 
   !write(6,"(a,i3,a,i2,a,i2)") " OpenMP: j = ",j," thread number:",OMP_GET_THREAD_NUM()," / ",OMP_GET_NUM_THREADS()
-  
-  #ifdef parallel
-    istart=0
-  #else
-    istart = int(ran3(iseed)*(nxm+1))
-  #endif
-  
+  !istart = int(ran3(iseed)*(nxm+1))
+  istart=NI/2 
   do ii=1,nxm 
     i = ii + istart 
     if (i.gt.nxm) i = i -nxm 
