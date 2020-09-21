@@ -21,7 +21,6 @@ imax=0;jmax=0;kmax=0;
  if(.NOT.(use_Shchepetkin)) then ! calculates baroclinic press gradients
     CALL rpevalgrad_Song(n) 
    else
-    CALL rpevalgrad_Song(n) 
     CALL rpevalgrad_Sche(n);
 ! #include "test_Sche.f90"
     drpx(1:NI,1:NJ,1:NK)=ru4_Sche(1:NI,1:NJ,1:NK);  drpy(1:NI,1:NJ,1:NK)=rv4_Sche(1:NI,1:NJ,1:NK); 
@@ -64,15 +63,15 @@ imax=0;jmax=0;kmax=0;
 !               v(i,j,k,n) = (qpr*px +con*drpx(i,j,k) +gpr*hx)/         
 !     &              (ffc(i,j)*con)                                     
                u(i,j,k,n) = - (qpr*py +drpy(i,j,k)+gpr*hy)/             &
-     &              (ffc(i,j))                                          
-
+     &              (ffc(i,j))
+                              
                   !IF(i==20 .AND. j==120 .AND. k==1) then
                   !  PRINT*,"WQ2",u(i,j,k,n),drpy(i,j,k),gpr*hy,ffc(i,j)
-                  !ENDIF
-
+                  !ENDIF             
 
                v(i,j,k,n) = (qpr*px +drpx(i,j,k) +gpr*hx)/              &
-     &              (ffc(i,j))                                          
+     &              (ffc(i,j))
+                                   
 !               if ((i.eq.48).and.(k.eq.30)) then
 !                  write(120,*) drpx(i,j,k),drpy(i,j,k)
 !               end if
