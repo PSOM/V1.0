@@ -1,0 +1,42 @@
+Copied from Nutrients_Asiri_OSM16
+
+Set up Lee waves. 
+Initialize with Barotropic profile
+
+
+ini_sT is from wiggle
+
+Use depth =1000 m, pfac=4,  dztop=1.5,   NK=48,  Lx = 192 km,  Ly =  320 km,  
+
+
+comment out the stop in checks.f90 to allow slope in x dir
+
+
+in Namelist_lee
+Schepetkin = TRUE
+lv_flatbottom = FALSE
+RR=0.000d0,              ! bottom friction (in m/s)  instead of 0.0005
+
+in write_cdf
+  jslice= NJ/2;call write_cdf_2D_y(jslice,counter_2d,n)
+
+
+Change mldepth in ini_st to 30m
+
+
+Change ini_setup to write zgrid even without a flat bottom
+
+---
+Dec 29, 2019
+
+Change ini_st  Make N2backgrnd value = 1-^-6
+
+pfac =2  (as beflore)
+
+in cppdefs  set define fixed_bottom_thickness
+
+add dzbot_dim to namelist
+
+
+
+

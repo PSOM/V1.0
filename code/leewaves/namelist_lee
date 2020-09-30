@@ -1,0 +1,105 @@
+&PARAM
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!! DOMAIN AND INITIAL PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!----------------- TIME SETTING -----------------
+
+nsteps=16000,              ! number of time steps. 12000 for 30 days.
+dtime_dim=54,              ! time step (in sec) try 216 for dx=1km. 216 for 30 periods of 2*pi/n
+
+restore_sT=.TRUE.,
+restore_u =.TRUE.,
+restore_time=1800,         ! restoring time scale (in sec)
+restore_step=0,            ! step when restoring is turned on
+
+!-----------------  HYDROSTATIC -----------------
+
+fnhhy=0,                   ! 1 is simulation is non-hydrostatic, 0 otherwise
+
+!-------------- PLANETARY VORTICITY -------------
+
+fplane=1,                  ! 1 if simulation is on a f-plane, 0 if f varies a sin(latitude)
+phi0deg=63,                ! phi0deg is the central latitude (in degree)   f=1.3e-4 rad/s
+Umax=0.18,
+
+!----------------- GRID SETTING -----------------
+
+dx=100,                    ! resolution in the x direction (in m) 
+dy=200,                    ! resolution in the y direction (in m)
+dztop_dim=5,               ! uppermost cell thickness (in m)
+dzbot_dim=5,               ! lowermost cell thickness (in m)
+!pfac=1.d-12,              ! vertical stretching factor
+depmean_dim=2000.,         ! mean depth of the topography
+
+distance=75.,              ! distance between the flat surface and the mean depth of the topography, for Nz=64,128,256
+!distance=35.,              !   for Nz=32
+
+!Nf=15,                     ! # of corrugated layers, excluding ghost layer but including bottom boundary layer, for Nz=256!!
+Nf=7,                      !   for Nz=128
+!Nf=3,                      !   for Nz=32,64
+
+lv_flat_bottom=.FALSE.,    ! if TRUE, the bottom will be flat, otherwise, topog will be computed from ini_topog
+use_Shchepetkin=.FALSE.,   ! switch for the baroclinic pressure term: 
+                           !   TRUE: Shchepetkin scheme is used; FALSE: Song scheme is used (only works for flat bottom).
+topo_wavelength=1200.,
+topo_amplitude =10.,
+
+!------------ DIFFUSION AND FRICTION ------------
+
+!Kx=.003, Ky=.003,          ! diffusion in the horizontal, x & y direction (in m*m/s)
+Kx=4.d-3, Ky=4.d-3,        ! diffusion in the horizontal, x & y direction (in m*m/s)
+
+!binu=10,                   ! biharmonic diffusion in the horizontal, y direction (in m^4/s).
+!binu=2500,
+
+!KzMom=5d-4, KzTr=5d-4,     ! for Nz=256        ! diffusion in the vertical for momentum & tracers (in m*m/s)
+KzMom=1d-3, KzTr=1d-3,     ! for Nz=128 
+!KzMom=1.5d-2, KzTr=1.5d-2, !for Nz=32
+
+RR=0,                      ! bottom friction (in m/s) 
+
+!---------------  OUTPUT SETTING ----------------
+
+out1d_int=200000000,       ! frequency of the 1D output (in number of timesteps)
+out2d_int=400,             ! frequency of the 2D output (in number of timesteps) 50 for 3 hours
+out3d_int=1600,             ! frequency of the 3D output (in number of timesteps) 400 for 1 day
+dirout="/Users/yuewu/master/output/lee_",  ! output directory
+
+!---------------- PICKUP OPTION -----------------
+
+pickup_int=100,            ! (W) frequency of writing pickup files 
+pickup_step=-1000          ! (R) unique time step at which the pickup file will be read and used to re-start the model
+                           ! if the simulation does not start from a previous pickup file, set pickup_step to a negative value.
+&
+&traj
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!! PARTICLES PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Will only be read if allow_particle is defined in inc/cppdefs.h
+
+NPR=3000,                  ! number of particles
+ini_particle_time=1,       ! time step for particle initialization
+parti_file_num=30,         ! number of output files
+parti_outfreq=50,          ! frequency of particles output (in number of timesteps)
+ 
+pcx=0.5,                   !     Four parameters to  
+pcy=0.5,                   !      customize the 
+pcz=0.8,                   !      initialization of
+pcr=0.4/                   !      the particles
+!&
+!&user
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!! USER PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! These variables can be set by the user to customize simulations.
+! For instance, T_ini=user1*T_prime+T_bckgrd
+!
+!user1=0.,
+!user2=0.,
+!user3=0.,
+!user4=0.,
+!user5=0.,
+!user6=0.,
+!user7=0.,
+!user8=0./
