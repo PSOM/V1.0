@@ -1,0 +1,13 @@
+name: compilePSOM
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - libgcc-ng=9.3.0=h5dbcf3e_17
+  - libgomp=9.3.0=h5dbcf3e_17
+  - libstdcxx-ng=9.3.0=h2ae2ef3_17
+  - xorg-makedepend=1.0.6=he1b5a44_1
+prefix: /vortexfs1/home/mfreilich/.conda/envs/compilePSOM

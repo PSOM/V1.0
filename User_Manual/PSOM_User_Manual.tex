@@ -129,6 +129,8 @@ Running \texttt{configure.sh} will search for makedepend (which is necessary to 
 \begin{lstlisting}[language=sh, breaklines]
  sudo port install makedepend
 \end{lstlisting}
+A conda environment to configure, compile, and run PSOM on the WHOI HPC (Poseidon) is included as `environment$\_$compile.yml'
+
 If you chose to use netcdf, an attempt to use nc-config will be tried. If nc-config is present, it will be used in order to set the links to netcdf libraries appropriately; If not, you can complete this step yourself by linking the executable to the netcdf libraries. To do so, edit ./optfile before going to the next step.
 
 To summarize, This step has 2 effects: (1) modify \texttt{optfile}, and (2) customize \texttt{namelist}. Failures in running \texttt{configure.sh} can likely be avoided by correctly installing makedepend and/or netcdf libraries.
