@@ -1,0 +1,84 @@
+&PARAM
+!----------------- TIME SETTING -----------------
+
+nsteps=28800,dtime_dim=60, ! number of time steps and time step (in sec), 10 day
+!nsteps=28800,dtime_dim=60, ! number of time steps and time step (in sec), 10 day
+!nsteps=32000,dtime_dim=54,
+!nsteps=34560,dtime_dim=50,             
+!nsteps=36000,dtime_dim=48,
+
+restore_sT=.TRUE.,
+restore_u =.TRUE.,
+restore_time=86400,        ! restoring time scale (in sec)
+restore_step=0,            ! step when restoring is turned on
+
+!-------------------  SETTING -------------------
+
+fnhhy=0,                   ! 1 is simulation is non-hydrostatic, 0 otherwise
+fplane=1,                  ! 1 if simulation is on a f-plane, 0 if f varies a sin(latitude)
+phi0deg=63,                ! phi0deg is the central latitude (in degree), f=1.3e-4 rad/s
+Nbkgrnd=1.d-3, 
+Umax=0.18,
+
+!----------------- GRID SETTING -----------------
+
+dx=100.,                   ! resolution in the x direction (in m) 
+dy=100.,                   ! for Ny=96
+dz_avg=8.,                 ! averaged vertical resolution, for parameterization of Kz
+dztop_dim=5.,              ! uppermost cell thickness (in m)
+dzbot_dim=5.,              ! lowermost cell thickness (in m)
+!pfac=1.d-12,              ! vertical stretching factor
+depmean_dim=2000.,         ! mean depth of the topography
+distance=75.,             ! distance between flat interface and mean depth of topography; 
+                           ! 75 for Nz=256,128,64; 35 for Nz=32;
+Nf=15,                     ! # of corrugated layers excluding ghost layer including bbl; 
+                           ! 15 for Nz=400,256; 7 for Nz=128; 3 for Nz=64,32
+lv_flat_bottom =.FALSE.,   ! if TRUE, the bottom will be flat
+use_Shchepetkin=.FALSE.,   ! switch for the baroclinic pressure term
+topo_wavelength=1200.,
+topo_amplitude =5.,
+
+!------------ DIFFUSION AND FRICTION ------------
+
+iv_compute_kh=0, iv_compute_kz=0, 
+gFrc=0,                    ! critical value for gradient Fr
+biharmonic_horizontal=.TRUE.,
+A0x=0.,A0y=0.,             ! diffusion in the horizontal, x & y direction (in m*m/s)
+B0x=125., B0y=125.,        ! 4 times viscous, for dx=100,dy=100
+KzMom=1.d-4, KzTr=1.d-4,   !
+RR=0,                      ! bottom friction (in m/s) 
+
+!---------------  OUTPUT SETTING ----------------
+
+out1d_int =60,             ! frequency of the 1D output (in number of timesteps)
+out2d_int =60,             ! 30 min
+out3d_int =1440,           ! for dt=60, 1 day
+!out3d_int=1600,           ! for dt=54
+!out3d_int=1728,           ! for dt=50
+!out3d_int=1800,           ! for dt=48
+dirout="./output1003/lee_", ! local output directory
+
+!---------------- PICKUP OPTION -----------------
+
+pickup_int=72000,           ! (W) frequency of writing pickup files, 5 days
+pickup_step=-7200/         ! (R) unique time step at which the pickup file will be read and used to re-start the model
+                           ! if the simulation does not start from a previous pickup file, set pickup_step negative
+&
+
+&traj
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!! PARTICLES PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Will only be read if allow_particle is defined in inc/cppdefs.h
+
+
+NPR=422400,                ! number of particles, 12*176*200
+ini_particle_time=2880,    ! time step for particle initialization, 2 day
+parti_inifreq=900000000000,! frequency of particles seeding (in number of timesteps)
+parti_file_num=48,         ! number of output files, 1 day
+parti_outfreq=30,          ! frequency of particles output (in number of timesteps), half hour
+ 
+pcx=0.1,                   !     Four parameters to  
+pcy=0.1,                   !      customize the 
+pcz=0.8,                   !      initialization of
+pcr=0.4/                   !      the particles
