@@ -29,7 +29,7 @@ subroutine linerelax(nxm,nym,nzm,cp,p,fn)
          do 120 ii=1,nxm 
 !            write(6,*) 'istart = ',istart                              
             i = ii + istart 
-            if (i.gt.nxm) i = i -nxm 
+            i = mod(i-1,nxm) + 1   ! periodic wrap (i-nxm once is out of bounds if istart>nxm)
             im1= i-1 
             ip1= i+1 
 !c periodic-ew boundaries                                               
