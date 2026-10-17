@@ -158,7 +158,7 @@ subroutine diag_n2budget(step)
          do j=1,NJ 
             do i=0,NI+1
                if(i==0) then
-                 i2=NK
+                 i2=NI
                 else if(i==NI+1) then
                  i2=1
                 else
