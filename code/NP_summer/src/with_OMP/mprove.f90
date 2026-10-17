@@ -111,7 +111,7 @@ subroutine mprove(h,ch,oldrhs,dtime)
                                                                         
   maxres= 0.d0 
 
-!$OMP PARALLEL DO PRIVATE(j,i,res) SHARED(rhs,ch,he,maxres) 
+!$OMP PARALLEL DO PRIVATE(j,i,res) SHARED(rhs,ch,he) REDUCTION(max:maxres) 
   do j=1,NJ 
     i=1 
     res=   rhs(i,j)-             &

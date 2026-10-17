@@ -67,7 +67,7 @@ subroutine hsolve(h,oldh,hdt,dtime)
                                                                           
     maxres= 0.d0 
 
-!$OMP PARALLEL DO PRIVATE(j,i,res) SHARED(maxres) 
+!$OMP PARALLEL DO PRIVATE(j,i,res) REDUCTION(max:maxres) 
     do j=1,NJ 
       i=1 
       res= rhs(i,j)-              &
