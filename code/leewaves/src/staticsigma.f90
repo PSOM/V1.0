@@ -195,7 +195,7 @@ USE header
 
    do j=1,NJ 
       do i=0,NI 
-         do k=1,NK 
+         do k=1,NK-1   ! k=NK: sigma_toplayer 
             gi3(i,j,k)= 0.5d0*(g13(i,j,k) +g13(i+1,j,k))*Jifc(i,j,k) 
             gqi3(i,j,k)= qpr*gi3(i,j,k) 
          enddo
@@ -204,7 +204,7 @@ USE header
 
    do j=0,NJ 
       do i=1,NI 
-         do k=1,NK 
+         do k=1,NK-1   ! k=NK: sigma_toplayer 
             gj3(i,j,k)= 0.5d0*(g23(i,j,k) +g23(i,j+1,k))*Jjfc(i,j,k) 
             gqj3(i,j,k)= qpr*gj3(i,j,k) 
          enddo
