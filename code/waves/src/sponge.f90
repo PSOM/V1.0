@@ -14,7 +14,7 @@ subroutine sponge(n,dum_time)
 
   do j=0,spl+1
 
-    dummy=gamma_T*cos((j-1)/spl*PI/2) 
+    dummy=gamma_T*cos(dble(j-1)/dble(spl)*PI/2)   ! dble: (j-1)/spl was an integer division (step taper)
     if (j==0) dummy=gamma_T
 
     do k = splz+1, NK+1
@@ -30,7 +30,7 @@ subroutine sponge(n,dum_time)
 
   do j=NJ-spl,NJ+1
 
-    dummy=gamma_T*sin((j-(NJ-spl))/spl*PI/2) 
+    dummy=gamma_T*sin(dble(j-(NJ-spl))/dble(spl)*PI/2)
     if (j==NJ+1) dummy=gamma_T
 
     do k = splz+1, NK+1
