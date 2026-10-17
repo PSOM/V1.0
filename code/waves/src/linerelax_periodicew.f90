@@ -14,10 +14,12 @@ subroutine linerelax(nxm,nym,nzm,cp,p,fn)
 iseed= 91294 
 dum = ran3(iseed) 
 
+#ifdef parallel
  !$OMP PARALLEL
   NPROC=OMP_GET_NUM_THREADS() 
   CHUNK=(nym*nxm)/NPROC
  !$OMP END PARALLEL
+#endif
 ! PRINT*,"L ",CHUNK,NPROC
 
 
