@@ -73,6 +73,13 @@ parallel on a GPU.
   older versions of `main.f90`, `ini_uv.f90` and `rpevalgrad_Song.f90` than `model/`, so it could only
   mislead. `compile.sh` now creates `model_build/src` and `inc` if they are missing (fresh clone), and
   `clean.sh` no longer fails when `model_build` doesn't exist. No effect on any build.
+- **Build products and editor backups removed** (`b2ae763`): the object files, `.mod` files, generated
+  `Makefile` and Linux executable in `mkfile/` (the directory stays, with a `.gitignore`), the compiled
+  `tools/preproc.exe` and `tools/preprocmine` (compile `tools/preproc.f90` yourself, as GET_STARTED_3 says),
+  `*~` backups, `*.bak`, and stray `.mod` files. `.gitignore` now covers `.DS_Store`, `*.o`, `*.mod`, `*~`,
+  `*.bak`. A fresh clone was checked to build as before (`compile.sh` stages `model_build` and writes the
+  Makefile).
+- Documentation: this file; GET_STARTED_3 CASE 7 (OpenMP and stack size); a pointer in `README`.
 
 ## 4. Stack size and OpenMP (documented, not changed)
 
@@ -115,7 +122,7 @@ listed in `tools/_values_reference` plus `-O2`), serial unless noted.
 - **Fortran vs Julia, whole model.** wiggle (default, Shchepetkin pressure gradient, hydrostatic) and
   waves (on a reduced 16×192×96 grid) were run with both codes from the same namelist, with the full
   model state written every step, and compared field by field. After all fixes they agree to round-off:
-  kinetic energy to ≤1e-14 relative and all fields to ≤1e-10 relative over 10–30 steps (the exceptions are
+  kinetic energy to ≤1e-13 relative and all fields to ≤2e-10 relative over 3–100 steps (the exceptions are
   fields that are themselves pure round-off noise in these flows).
 - **Fortran vs Julia, routine by routine.** The Fortran was built as a shared library and loaded into the
   Julia process. Each routine of the time step was run in both codes on identical inputs and every model
