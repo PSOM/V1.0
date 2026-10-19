@@ -13,3 +13,10 @@
 *.synctex.gz
 *.toc
 *.git
+
+# macOS, build products, editor backups
+.DS_Store
+*.o
+*.mod
+*~
+*.bak
