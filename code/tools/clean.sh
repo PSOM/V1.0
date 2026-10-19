@@ -2,11 +2,9 @@
 
 
 dt=$(date +"%m_%d_%Y_%H_%m_%S")
-mv model_build trash/model_build_$dt
+[ -d model_build ] && mv model_build trash/model_build_$dt
 
-mkdir model_build/
-mkdir model_build/src/
-mkdir model_build/inc/
+mkdir -p model_build/src/ model_build/inc/
 
 echo "clean model_build"
 echo "clean mkfile"
