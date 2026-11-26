@@ -13,7 +13,7 @@
 !                                                                       
       maxres= 0.d0 
 
-      !$OMP PARALLEL DO PRIVATE(i,j,k) SHARED(cp,p,fn,maxres,res) COLLAPSE(3)
+      !$OMP PARALLEL DO PRIVATE(i,j,k) SHARED(cp,p,fn,res) REDUCTION(max:maxres) COLLAPSE(3)
       do k=1,nzm 
          do j=1,nym 
             do i=1,nxm 

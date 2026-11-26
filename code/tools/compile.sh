@@ -148,6 +148,9 @@ dirincbui=$(echo $dirh"/../model_build/inc")
 optfile_add=$(echo $dirsrcalt"/../optfile_add")
 optfile=$(echo $dirsrcbui"/../optfile")
 
+# model_build is generated here and not tracked by git: create it if it does not exist (fresh clone)
+mkdir -p "$dirsrcbui" "$dirincbui"
+
 
 ######################
 # Reading the potential model_build optfile

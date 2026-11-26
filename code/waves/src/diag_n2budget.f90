@@ -13,7 +13,7 @@ subroutine diag_n2budget(step)
       INTEGER :: ktest(3)
       REAL(kind=rc_kind) :: depth,dz,dzt,dzb,dyinv,dxinv,dzinv,zbt,          &
      &     flocalinv,flocal,bx,by,bz,grav,adv,vol                       
-      REAL(kind=rc_kind) :: avezf(NK),avezc(NK),avexyN2(NK),testdepth(3) 
+      REAL(kind=rc_kind) :: avezf(0:NK),avezc(NK),avexyN2(NK),testdepth(3) 
       REAL(kind=rc_kind) :: b(NI,NJ,NK),Dbdt(NI,NJ,NK) 
 !     pv is in header and is common                                     
       REAL(kind=rc_kind) :: pvx,pvy,pvz,gravR0,dia,                                      &
@@ -39,6 +39,14 @@ subroutine diag_n2budget(step)
          avezf(k)= DL*avezf(k)/dble(NI*NJ) 
          avezc(k)= DL*avezc(k)/dble(NI*NJ) 
       end do 
+!     avezf(0): mean depth of the bottom face (used as avezf(k-1) for k=1)
+      avezf(0)= 0.d0
+      do j=1,NJ
+         do i=1,NI
+            avezf(0)= -zf(i,j,0) +avezf(0)
+         end do
+      end do
+      avezf(0)= DL*avezf(0)/dble(NI*NJ)
 !     avezf and avezc are positive (in m)                               
                                                                         
 !     Integrate vertically, down to 0.9*MLD, 0.75*MLD , and 0.4*MLD     
@@ -150,7 +158,7 @@ subroutine diag_n2budget(step)
          do j=1,NJ 
             do i=0,NI+1
                if(i==0) then
-                 i2=NK
+                 i2=NI
                 else if(i==NI+1) then
                  i2=1
                 else

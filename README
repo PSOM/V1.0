@@ -14,6 +14,13 @@ This new version implements some of the changes developed sing PSOMv0.63, which 
 
 
 *********************
+* CHANGES (2026)
+
+Bug fixes and model changes made while validating the Julia port (https://github.com/PSOM/Julia_Port)
+are described in CHANGES.md: what was changed, why, and how it affects the model output.
+
+
+*********************
 * GENERAL DESCRIPTION
 
 PSOM, pronounced "soam" (the nectar derived from the churning of the oceans in Indian mythology), stands for Process Study Ocean Model. 

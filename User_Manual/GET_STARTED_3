@@ -87,3 +87,21 @@ CASE 6: You want to do some cleaning of the ./mkfile directory.
 
 
 
+
+
+-------
+CASE 7: You run with OpenMP (define_parallel=T) and the model crashes at the start (segmentation fault).
+
+   With OpenMP, every local array of every subroutine is put on the stack, and several routines
+   (e.g. sigma_toplayer, staticsigma, hsolve) have local arrays the size of the whole grid. These are
+   on the stack of the main thread, so a large grid needs a large stack: about 64 MB for 300 000 grid
+   cells, about 0.5 GB for 2.4 million.
+
+   - Linux / clusters: before starting the model (e.g. in the job script), run
+         ulimit -s unlimited
+   - macOS: ulimit cannot go beyond 64 MB. Link with a bigger stack instead; the ifort OpenMP options
+     in tools/genmakefilel already do this (-Wl,-stack_size,0x40000000 = 1 GB), and gfortran accepts
+     the same option.
+
+   The OpenMP worker threads only need small arrays; their default stack (OMP_STACKSIZE) is enough.
+   See CHANGES.md (section 4) for details.

@@ -102,7 +102,7 @@ subroutine rpevalgrad_Song(n)
          do j=1,NJ-1
             k=0
             Jy2(j,0)= 0.5*(rho(i,j,k+2) +rho(i,j+1,k+2) - (rho(i,j,k+1) + rho(i,j+1,k+1)) )
-            dzsig(j,1)= 0.5*(zc(i,j,2) +zc(i,j+1,2) - (zc(i,j,1) + zc(i,j+1,1) ))*DL
+            dzsig(j,0)= 0.5*(zc(i,j,2) +zc(i,j+1,2) - (zc(i,j,1) + zc(i,j+1,1) ))*DL
             do k=1,NK-1
                Jy2(j,k)= 0.5*(rho(i,j,k+1) +rho(i,j+1,k+1) - (rho(i,j,k) + rho(i,j+1,k)) )
                dzsig(j,k)= 0.5d0*(zc(i,j,k+1) +zc(i,j+1,k+1) - (zc(i,j,k) +zc(i,j+1,k)) )*DL
@@ -180,8 +180,8 @@ subroutine rpevalgrad_Song(n)
 
          do i=1,NI-1
             k=0
-            Jx2(j,0)= 0.5*(rho(i,j,k+2) +rho(i+1,j,k+2) - (rho(i,j,k+1) + rho(i+1,j,k+1)) )
-            dzsig_x(i,1)= 0.5*(zc(i,j,2) +zc(i+1,j,2) - (zc(i,j,1) + zc(i+1,j,1) ))*DL
+            Jx2(i,0)= 0.5*(rho(i,j,k+2) +rho(i+1,j,k+2) - (rho(i,j,k+1) + rho(i+1,j,k+1)) )
+            dzsig_x(i,0)= 0.5*(zc(i,j,2) +zc(i+1,j,2) - (zc(i,j,1) + zc(i+1,j,1) ))*DL
             do k=1,NK-1
                Jx2(i,k)= 0.5*(rho(i,j,k+1) +rho(i+1,j,k+1) - (rho(i,j,k) + rho(i+1,j,k)) )
                dzsig_x(i,k)= 0.5d0*(zc(i,j,k+1) +zc(i+1,j,k+1) - (zc(i,j,k) +zc(i+1,j,k)) )*DL
@@ -191,8 +191,8 @@ subroutine rpevalgrad_Song(n)
          end do
          i=NI
          k=0
-         Jx2(j,0)= 0.5*(rho(i,j,k+2) +rho(1,j,k+2) - (rho(i,j,k+1) + rho(1,j,k+1)) )
-         dzsig_x(i,1)= 0.5*(zc(i,j,2) +zc(1,j,2) - (zc(i,j,1) + zc(1,j,1) ))*DL
+         Jx2(i,0)= 0.5*(rho(i,j,k+2) +rho(1,j,k+2) - (rho(i,j,k+1) + rho(1,j,k+1)) )
+         dzsig_x(i,0)= 0.5*(zc(i,j,2) +zc(1,j,2) - (zc(i,j,1) + zc(1,j,1) ))*DL
          do k=1,NK-1
             Jx2(i,k)= 0.5*(rho(i,j,k+1) +rho(1,j,k+1) - (rho(i,j,k) + rho(1,j,k)) )
             dzsig_x(i,k)= 0.5d0*(zc(i,j,k+1) +zc(1,j,k+1) - (zc(i,j,k) +zc(1,j,k)) )*DL
